@@ -1,0 +1,212 @@
+import React, { useState, useEffect } from 'react';
+import { ShoppingBag, Car, ChevronDown, Sun, Moon, Menu, X } from 'lucide-react';
+import Logo from './Logo';
+import { useLanguage } from '../data/i18n.jsx';
+
+
+export default function Header({
+  activeVehicle,
+  cartCount,
+  onGarageClick,
+  onCartClick,
+  activeTab,
+  setActiveTab,
+  theme,
+  onThemeToggle
+}) {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const { t, lang, setLang, isAr } = useLanguage();
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close mobile nav on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [activeTab]);
+
+  // Prevent body scroll when mobile nav is open
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileOpen]);
+
+  const navItems = [
+    { id: 'catalog', label: t('nav.catalog') },
+    { id: 'warranty', label: t('nav.warranty') },
+    { id: 'support', label: t('nav.support') },
+    { id: 'dashboard', label: t('nav.dashboard') },
+    { id: 'admin', label: t('nav.admin') },
+  ];
+
+  return (
+    <>
+      <header className={`main-header${scrolled ? ' scrolled' : ''}`} dir="ltr">
+        {/* Logo */}
+        <div
+          className="header-logo-container"
+          style={{ cursor: 'pointer', marginRight: '40px' }}
+          onClick={() => setActiveTab('catalog')}
+        >
+          <Logo height={scrolled ? 34 : 42} />
+        </div>
+
+        {/* Desktop Nav */}
+        <nav className="nav-links">
+          {navItems.map(item => (
+            <span
+              key={item.id}
+              className={`nav-item${activeTab === item.id ? ' active' : ''}`}
+              onClick={() => setActiveTab(item.id)}
+            >
+              {item.label}
+            </span>
+          ))}
+        </nav>
+
+        {/* Actions */}
+        <div className="header-actions">
+          {/* Vehicle Selector */}
+          <button
+            className={`garage-status-btn${activeVehicle ? ' active-selected' : ''}`}
+            onClick={onGarageClick}
+          >
+            <Car size={15} />
+            <span>
+              {activeVehicle
+                ? `${activeVehicle.year} ${activeVehicle.make} ${activeVehicle.model}`
+                : t('nav.selectVehicle')}
+            </span>
+            <ChevronDown size={12} style={{ opacity: 0.6 }} />
+          </button>
+
+          {/* Garage */}
+          <button
+            className="action-btn"
+            onClick={onGarageClick}
+            title={t('nav.myGarage')}
+          >
+            <Car size={18} />
+          </button>
+
+          {/* Cart */}
+          <button
+            className="action-btn"
+            onClick={onCartClick}
+            title={t('nav.cart')}
+          >
+            <ShoppingBag size={18} />
+            {cartCount > 0 && <span className="badge-count">{cartCount}</span>}
+          </button>
+
+          {/* Language Toggle */}
+          <div className="lang-toggle">
+            <button
+              className={`lang-btn${lang === 'en' ? ' active' : ''}`}
+              onClick={() => setLang('en')}
+            >
+              EN
+            </button>
+            <button
+              className={`lang-btn${lang === 'ar' ? ' active' : ''}`}
+              onClick={() => setLang('ar')}
+            >
+              ع
+            </button>
+          </div>
+
+          {/* Theme */}
+          <button
+            className="action-btn"
+            onClick={onThemeToggle}
+            title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+          >
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+
+          {/* Mobile Menu */}
+          <button
+            className="mobile-menu-btn"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open menu"
+          >
+            <Menu size={20} />
+          </button>
+        </div>
+      </header>
+
+      {/* Mobile Nav Overlay */}
+      <div
+        className={`mobile-nav-overlay${mobileOpen ? ' open' : ''}`}
+        onClick={(e) => { if (e.target === e.currentTarget) setMobileOpen(false); }}
+      >
+        <div className="mobile-nav-drawer">
+          {/* Drawer Header */}
+          <div className="mobile-nav-header">
+            <Logo height={36} />
+            <button
+              className="drawer-close"
+              onClick={() => setMobileOpen(false)}
+              aria-label="Close menu"
+            >
+              <X size={16} />
+            </button>
+          </div>
+
+          {/* Nav Items */}
+          {navItems.map(item => (
+            <button
+              key={item.id}
+              className={`mobile-nav-item${activeTab === item.id ? ' active' : ''}`}
+              onClick={() => setActiveTab(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+
+          {/* Bottom Actions */}
+          <div className="mobile-nav-actions">
+            {/* Language Toggle */}
+            <div className="lang-toggle" style={{ alignSelf: 'flex-start' }}>
+              <button
+                className={`lang-btn${lang === 'en' ? ' active' : ''}`}
+                onClick={() => setLang('en')}
+              >
+                English
+              </button>
+              <button
+                className={`lang-btn${lang === 'ar' ? ' active' : ''}`}
+                onClick={() => setLang('ar')}
+              >
+                العربية
+              </button>
+            </div>
+
+            {/* Garage / Cart Quick */}
+            <button
+              className="btn-outline"
+              onClick={() => { onGarageClick(); setMobileOpen(false); }}
+              style={{ justifyContent: 'center' }}
+            >
+              <Car size={16} />
+              {t('nav.myGarage')}
+            </button>
+
+            <button
+              className="btn-primary"
+              onClick={() => { onCartClick(); setMobileOpen(false); }}
+              style={{ justifyContent: 'center' }}
+            >
+              <ShoppingBag size={16} />
+              {t('nav.cart')} {cartCount > 0 && `(${cartCount})`}
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
