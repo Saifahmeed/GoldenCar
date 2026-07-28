@@ -41,16 +41,16 @@ function Stars({ rating }) {
 // ─── Product Card ────────────────────────────────────────────────
 function ProductCard({ product, activeVehicle, onClick, onAddToCart, isAr, t }) {
   const imgMap = {
-    'brakes.jpg': '/src/assets/brakes.jpg',
-    'ignition_coils.jpg': '/src/assets/ignition_coils.jpg',
-    'spark_plugs.jpg': '/src/assets/spark_plugs.jpg',
-    'intercooler.jpg': '/src/assets/intercooler.jpg',
-    'downpipe.jpg': '/src/assets/downpipe.jpg',
-    'springs.jpg': '/src/assets/springs.jpg',
-    'sway_bar.jpg': '/src/assets/sway_bar.jpg',
-    'brake_pads.jpg': '/src/assets/brake_pads.jpg',
-    'exhaust.jpg': '/src/assets/exhaust.jpg',
-    'intake.jpg': '/src/assets/intake.jpg',
+    'brakes.jpg': '/img/brakes.jpg',
+    'ignition_coils.jpg': '/img/ignition_coils.jpg',
+    'spark_plugs.jpg': '/img/spark_plugs.jpg',
+    'intercooler.jpg': '/img/intercooler.jpg',
+    'downpipe.jpg': '/img/downpipe.jpg',
+    'springs.jpg': '/img/springs.jpg',
+    'sway_bar.jpg': '/img/sway_bar.jpg',
+    'brake_pads.jpg': '/img/brake_pads.jpg',
+    'exhaust.jpg': '/img/exhaust.jpg',
+    'intake.jpg': '/img/intake.jpg',
   };
 
   const imgSrc = imgMap[product.image] || imgMap['brakes.jpg'];
@@ -115,16 +115,16 @@ function ProductModal({ product, isOpen, onClose, activeVehicle, onAddToCart, is
   if (!product) return null;
 
   const imgMap = {
-    'brakes.jpg': '/src/assets/brakes.jpg',
-    'ignition_coils.jpg': '/src/assets/ignition_coils.jpg',
-    'spark_plugs.jpg': '/src/assets/spark_plugs.jpg',
-    'intercooler.jpg': '/src/assets/intercooler.jpg',
-    'downpipe.jpg': '/src/assets/downpipe.jpg',
-    'springs.jpg': '/src/assets/springs.jpg',
-    'sway_bar.jpg': '/src/assets/sway_bar.jpg',
-    'brake_pads.jpg': '/src/assets/brake_pads.jpg',
-    'exhaust.jpg': '/src/assets/exhaust.jpg',
-    'intake.jpg': '/src/assets/intake.jpg',
+    'brakes.jpg': '/img/brakes.jpg',
+    'ignition_coils.jpg': '/img/ignition_coils.jpg',
+    'spark_plugs.jpg': '/img/spark_plugs.jpg',
+    'intercooler.jpg': '/img/intercooler.jpg',
+    'downpipe.jpg': '/img/downpipe.jpg',
+    'springs.jpg': '/img/springs.jpg',
+    'sway_bar.jpg': '/img/sway_bar.jpg',
+    'brake_pads.jpg': '/img/brake_pads.jpg',
+    'exhaust.jpg': '/img/exhaust.jpg',
+    'intake.jpg': '/img/intake.jpg',
   };
 
   const imgSrc = imgMap[product.image] || imgMap['brakes.jpg'];
@@ -245,16 +245,16 @@ function CartDrawer({ isOpen, onClose, cartList, onUpdateQty, onRemoveItem, onCl
   const total = cartList.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
   const imgMap = {
-    'brakes.jpg': '/src/assets/brakes.jpg',
-    'ignition_coils.jpg': '/src/assets/ignition_coils.jpg',
-    'spark_plugs.jpg': '/src/assets/spark_plugs.jpg',
-    'intercooler.jpg': '/src/assets/intercooler.jpg',
-    'downpipe.jpg': '/src/assets/downpipe.jpg',
-    'springs.jpg': '/src/assets/springs.jpg',
-    'sway_bar.jpg': '/src/assets/sway_bar.jpg',
-    'brake_pads.jpg': '/src/assets/brake_pads.jpg',
-    'exhaust.jpg': '/src/assets/exhaust.jpg',
-    'intake.jpg': '/src/assets/intake.jpg',
+    'brakes.jpg': '/img/brakes.jpg',
+    'ignition_coils.jpg': '/img/ignition_coils.jpg',
+    'spark_plugs.jpg': '/img/spark_plugs.jpg',
+    'intercooler.jpg': '/img/intercooler.jpg',
+    'downpipe.jpg': '/img/downpipe.jpg',
+    'springs.jpg': '/img/springs.jpg',
+    'sway_bar.jpg': '/img/sway_bar.jpg',
+    'brake_pads.jpg': '/img/brake_pads.jpg',
+    'exhaust.jpg': '/img/exhaust.jpg',
+    'intake.jpg': '/img/intake.jpg',
   };
 
   const buildWaMessage = () => {
@@ -1029,7 +1029,7 @@ export default function App() {
                   >
                     <div
                       className="category-card-bg"
-                      style={{ backgroundImage: `url('/src/assets/${card.img}')` }}
+                      style={{ backgroundImage: `url('/img/${card.img}')` }}
                     ></div>
                     <div className="category-card-overlay">
                       <div className="category-card-subtitle">{card.subtitle}</div>
