@@ -16,6 +16,7 @@ const translations = {
     'nav.selectVehicle': 'Select Vehicle',
     'nav.myGarage': 'My Garage',
     'nav.cart': 'Cart',
+    'owner.login': 'Secure Login',
 
     // Hero
     'hero.badge': 'GOLDEN Automotive • Est. 1990 Cairo',
@@ -273,6 +274,7 @@ const translations = {
     'nav.selectVehicle': 'اختر سيارتك',
     'nav.myGarage': 'جراجي',
     'nav.cart': 'السلة',
+    'owner.login': 'دخول آمن',
 
     // Hero
     'hero.badge': 'جولدن للسيارات • منذ ١٩٩٠ القاهرة',

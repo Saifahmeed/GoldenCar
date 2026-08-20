@@ -30,6 +30,81 @@ function fmtEGP(n, isAr) {
   return isAr ? `${n.toLocaleString()} ج.م` : `${n.toLocaleString()} EGP`;
 }
 
+function OwnerAccessModal({ isAr, target, onSuccess, onClose }) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(false);
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ username, password }),
+      });
+      if (!response.ok) throw new Error('Invalid credentials');
+      onSuccess('dashboard');
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="owner-gate-backdrop" role="dialog" aria-modal="true">
+      <form className="owner-gate-modal" onSubmit={handleSubmit}>
+        <div className="owner-gate-lock">SECURE ACCESS</div>
+        <h2>{isAr ? 'دخول آمن' : 'Secure Login'}</h2>
+        <p>{isAr ? 'سجّل الدخول للوصول إلى لوحة التحكم.' : 'Sign in to access the control dashboard.'}</p>
+        <input
+          className="form-input"
+          type="text"
+          value={username}
+          onChange={event => { setUsername(event.target.value); setError(false); }}
+          placeholder={isAr ? 'اسم المستخدم' : 'Username'}
+          autoComplete="username"
+          autoFocus
+        />
+        <input
+          className="form-input"
+          type="password"
+          value={password}
+          onChange={event => { setPassword(event.target.value); setError(false); }}
+          placeholder={isAr ? 'كلمة المرور' : 'Password'}
+          autoComplete="current-password"
+        />
+        {error && <span className="owner-gate-error">{isAr ? 'اسم المستخدم أو كلمة المرور غير صحيحة' : 'Incorrect username or password'}</span>}
+        <div className="owner-gate-actions">
+          <button type="button" className="btn-outline" onClick={onClose}>{isAr ? 'إلغاء' : 'Cancel'}</button>
+          <button type="submit" className="btn-primary" disabled={loading}>
+            {loading ? (isAr ? 'جاري التحقق...' : 'Checking...') : (isAr ? 'تسجيل الدخول' : 'Sign In')}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function PrivateToolsBar({ activeTab, setActiveTab, isAr }) {
+  return (
+    <div className="private-tools-bar">
+      <span>{isAr ? 'أدوات الإدارة' : 'Management Tools'}</span>
+      <button className={activeTab === 'dashboard' ? 'active' : ''} onClick={() => setActiveTab('dashboard')}>
+        {isAr ? 'لوحة التحكم' : 'Analytics Dashboard'}
+      </button>
+      <button className={activeTab === 'admin' ? 'active' : ''} onClick={() => setActiveTab('admin')}>
+        {isAr ? 'إدارة المنتجات' : 'Product Management'}
+      </button>
+    </div>
+  );
+}
+
 // ─── Star Rating Component ───────────────────────────────────────
 function Stars({ rating }) {
   return (
@@ -896,6 +971,8 @@ export default function App() {
 
   const [theme, setTheme] = useState('light');
   const [activeTab, setActiveTab] = useState('catalog');
+  const [ownerGateTarget, setOwnerGateTarget] = useState(null);
+  const [ownerAuthenticated, setOwnerAuthenticated] = useState(false);
   const [isGarageOpen, setIsGarageOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -923,6 +1000,31 @@ export default function App() {
 
   // Load custom products from admin
   const [customProducts, setCustomProducts] = useState(loadCustomProducts);
+
+  useEffect(() => {
+    fetch('/api/auth/me', { credentials: 'include' })
+      .then(response => response.json())
+      .then(data => setOwnerAuthenticated(Boolean(data.authenticated)))
+      .catch(() => setOwnerAuthenticated(false));
+  }, []);
+
+  const handleOwnerAccess = (target) => {
+    if (target === 'owner-login') {
+      setOwnerGateTarget(target);
+      return;
+    }
+    if (ownerAuthenticated) {
+      setActiveTab(target);
+      return;
+    }
+    setOwnerGateTarget(target);
+  };
+
+  const unlockOwnerArea = (target) => {
+    setOwnerAuthenticated(true);
+    setOwnerGateTarget(null);
+    setActiveTab(target);
+  };
 
   // Reload custom when switching to catalog
   useEffect(() => {
@@ -1041,6 +1143,7 @@ export default function App() {
         onSearchChange={setSearchQuery}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        onOwnerAccess={handleOwnerAccess}
         theme={theme}
         onThemeToggle={() => setTheme(p => p === 'dark' ? 'light' : 'dark')}
       />
@@ -1409,11 +1512,24 @@ export default function App() {
         </div>
       )}
 
+      {ownerAuthenticated && (activeTab === 'dashboard' || activeTab === 'admin') && (
+        <PrivateToolsBar activeTab={activeTab} setActiveTab={setActiveTab} isAr={isAr} />
+      )}
+
       {/* ═══ DASHBOARD PAGE ═══════════════════════════════════════ */}
-      {activeTab === 'dashboard' && <Dashboard />}
+      {ownerAuthenticated && activeTab === 'dashboard' && <Dashboard />}
 
       {/* ═══ ADMIN PAGE ══════════════════════════════════════════ */}
-      {activeTab === 'admin' && <AdminPanel />}
+      {ownerAuthenticated && activeTab === 'admin' && <AdminPanel />}
+
+      {ownerGateTarget && (
+        <OwnerAccessModal
+          isAr={isAr}
+          target={ownerGateTarget}
+          onSuccess={unlockOwnerArea}
+          onClose={() => setOwnerGateTarget(null)}
+        />
+      )}
 
       {/* ─── Footer (show on catalog, about, and support) ─── */}
       {['catalog', 'about', 'offers', 'support'].includes(activeTab) && (

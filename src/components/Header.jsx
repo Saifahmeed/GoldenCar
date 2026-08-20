@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Car, ChevronDown, Sun, Moon, Menu, X } from 'lucide-react';
+import { ShoppingBag, Car, ChevronDown, Sun, Moon, Menu, X, Lock } from 'lucide-react';
 import Logo from './Logo';
 import { useLanguage } from '../data/i18n.jsx';
 
@@ -11,6 +11,7 @@ export default function Header({
   onCartClick,
   activeTab,
   setActiveTab,
+  onOwnerAccess,
   theme,
   onThemeToggle
 }) {
@@ -43,8 +44,6 @@ export default function Header({
     { id: 'about', tab: 'about', label: t('nav.about') },
     { id: 'support', tab: 'support', label: t('nav.support') },
     { id: 'contact', tab: 'catalog', label: t('nav.contact') },
-    { id: 'dashboard', label: t('nav.dashboard') },
-    { id: 'admin', label: t('nav.admin') },
   ];
 
   const handleNavClick = (item) => {
@@ -149,6 +148,15 @@ export default function Header({
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
+          <button
+            className="action-btn owner-login-btn"
+            onClick={() => onOwnerAccess('owner-login')}
+            title={t('owner.login')}
+            aria-label={t('owner.login')}
+          >
+            <Lock size={17} />
+          </button>
+
           {/* Mobile Menu */}
           <button
             className="mobile-menu-btn"
@@ -191,6 +199,14 @@ export default function Header({
 
           {/* Bottom Actions */}
           <div className="mobile-nav-actions">
+            <button
+              className="btn-outline owner-mobile-login"
+              onClick={() => { onOwnerAccess('owner-login'); setMobileOpen(false); }}
+              style={{ justifyContent: 'center' }}
+            >
+              <Lock size={15} /> {t('owner.login')}
+            </button>
+
             {/* Language Toggle */}
             <div className="lang-toggle" style={{ alignSelf: 'flex-start' }}>
               <button

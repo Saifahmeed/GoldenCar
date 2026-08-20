@@ -734,6 +734,125 @@ ul {
   background: var(--red-glow);
 }
 
+.owner-gate-backdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(8px);
+}
+
+.owner-gate-modal {
+  width: min(100%, 400px);
+  display: grid;
+  gap: 14px;
+  padding: 32px;
+  border: 1px solid var(--border-red);
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+}
+
+.owner-gate-lock {
+  color: var(--red);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.owner-gate-modal h2 {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  text-transform: uppercase;
+}
+
+.owner-gate-modal p {
+  color: var(--text-2);
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
+.owner-gate-error {
+  color: var(--red);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.owner-gate-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.owner-console-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.owner-gate-cancel {
+  justify-self: center;
+  border: 0;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+
+.owner-login-btn {
+  color: var(--red);
+}
+
+.owner-mobile-login {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.private-tools-bar {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 24px;
+  margin-top: var(--header-h);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-2);
+}
+
+.private-tools-bar > span {
+  margin-right: 8px;
+  color: var(--text-3);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.private-tools-bar button {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-2);
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.private-tools-bar button.active,
+.private-tools-bar button:hover {
+  border-color: var(--border-red);
+  background: var(--red-glow);
+  color: var(--red);
+}
+
 /* Hero Stats */
 .hero-stats {
   display: flex;
