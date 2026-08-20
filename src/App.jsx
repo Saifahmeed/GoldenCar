@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   HelpCircle, Car, Check, ArrowRight,
   SlidersHorizontal, Mail, Phone, MapPin, Clock, MessageSquare,
@@ -970,7 +970,7 @@ export default function App() {
   const { t, isAr } = useLanguage();
 
   const [theme, setTheme] = useState('light');
-  const [activeTab, setActiveTab] = useState('catalog');
+  const [activeTab, setActiveTab] = useState(() => sessionStorage.getItem('gc_active_tab') || 'catalog');
   const [ownerGateTarget, setOwnerGateTarget] = useState(null);
   const [ownerAuthenticated, setOwnerAuthenticated] = useState(false);
   const [isGarageOpen, setIsGarageOpen] = useState(false);
@@ -983,6 +983,7 @@ export default function App() {
   const [priceLimit, setPriceLimit] = useState(20000);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const [garageList, setGarageList] = useState([
     { make: 'Toyota', model: 'Corolla', year: '2022', engine: '1.6L Active CVT (120 HP)' }
@@ -1000,13 +1001,25 @@ export default function App() {
 
   // Load custom products from admin
   const [customProducts, setCustomProducts] = useState(loadCustomProducts);
+  const resetScrollPosition = useRef(null);
+  const previousPage = useRef(currentPage);
 
   useEffect(() => {
     fetch('/api/auth/me', { credentials: 'include' })
       .then(response => response.json())
-      .then(data => setOwnerAuthenticated(Boolean(data.authenticated)))
+      .then(data => {
+        const authenticated = Boolean(data.authenticated);
+        setOwnerAuthenticated(authenticated);
+        if (!authenticated && (activeTab === 'admin' || activeTab === 'dashboard')) {
+          setActiveTab('catalog');
+        }
+      })
       .catch(() => setOwnerAuthenticated(false));
-  }, []);
+  }, [activeTab]);
+
+  useEffect(() => {
+    sessionStorage.setItem('gc_active_tab', activeTab);
+  }, [activeTab]);
 
   const handleOwnerAccess = (target) => {
     if (target === 'owner-login') {
@@ -1031,17 +1044,26 @@ export default function App() {
     if (activeTab === 'catalog' || activeTab === 'offers') setCustomProducts(loadCustomProducts());
   }, [activeTab]);
 
-  useEffect(() => {
-    if (activeTab !== 'offers') return;
+  const allProducts = [...productsData, ...customProducts];
+
+  const handleCustomProductsChange = (updatedProducts) => {
+    setCustomProducts(updatedProducts);
+  };
+
+  const resetFilters = () => {
+    if (activeTab !== 'catalog') resetScrollPosition.current = window.scrollY;
+    setActiveTab('catalog');
     setSearchQuery('');
     setActiveCategory('all');
     setSelectedBrands([]);
     setFilterCompatibleOnly(false);
     setPriceLimit(20000);
-    setCurrentPage(1);
-  }, [activeTab]);
+  };
 
-  const allProducts = [...productsData, ...customProducts];
+  const handleProductViewChange = (view) => {
+    if (view !== activeTab) resetScrollPosition.current = window.scrollY;
+    setActiveTab(view);
+  };
 
   // Seed dashboard
   useEffect(() => { seedDashboardData(); }, []);
@@ -1052,7 +1074,15 @@ export default function App() {
   }, [theme]);
 
   // Scroll to top on tab change
-  useEffect(() => { window.scrollTo({ top: 0 }); }, [activeTab]);
+  useEffect(() => {
+    if (resetScrollPosition.current !== null) {
+      const scrollY = resetScrollPosition.current;
+      resetScrollPosition.current = null;
+      requestAnimationFrame(() => window.scrollTo({ top: scrollY, behavior: 'auto' }));
+      return;
+    }
+    window.scrollTo({ top: 0 });
+  }, [activeTab]);
 
   // Garage
   const handleAddVehicle = (v) => {
@@ -1119,6 +1149,15 @@ export default function App() {
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(totalPages);
   }, [currentPage, totalPages]);
+
+  useEffect(() => {
+    if (previousPage.current === currentPage) return;
+    previousPage.current = currentPage;
+    document.getElementById('shop-catalog-anchor')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }, [currentPage]);
 
   const cartTotalQty = cartList.reduce((s, i) => s + i.quantity, 0);
 
@@ -1244,11 +1283,53 @@ export default function App() {
               ))}
             </div>
 
-            <div style={{ marginTop: '40px', marginBottom: '40px' }} id="shop-catalog-anchor">
+            <div style={{ marginTop: '40px', marginBottom: '40px', scrollMarginTop: 'calc(var(--header-h) + 20px)' }} id="shop-catalog-anchor">
               {/* Filtered Product Catalog */}
               <div className="shop-catalog-layout">
+                <button
+                  className="mobile-filter-toggle"
+                  onClick={() => setShowMobileFilters(prev => !prev)}
+                  aria-expanded={showMobileFilters}
+                >
+                  <SlidersHorizontal size={16} />
+                  {showMobileFilters
+                    ? (isAr ? 'إخفاء الفلاتر' : 'Hide Filters')
+                    : (isAr ? 'الفلاتر' : 'Filters')}
+                </button>
                 {/* Sidebar */}
-                <aside className="catalog-sidebar">
+                <aside className={`catalog-sidebar${showMobileFilters ? ' mobile-open' : ''}`}>
+                  <button className="sidebar-reset-filters-btn" onClick={resetFilters}>
+                    {t('catalog.resetFilters')}
+                  </button>
+
+                  <div className="filter-group">
+                    <div className="filter-title">{t('catalog.categoryFilter')}</div>
+                    <select
+                      className="form-input"
+                      value={activeCategory}
+                      onChange={e => setActiveCategory(e.target.value)}
+                    >
+                      <option value="all">{isAr ? 'كل التصنيفات' : 'All Categories'}</option>
+                      {cats.map(category => (
+                        <option key={category.id} value={category.id}>
+                          {isAr ? category.nameAr : category.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="filter-group">
+                    <div className="filter-title">{t('nav.offers')}</div>
+                    <label className="filter-checkbox-label">
+                      <input
+                        type="checkbox"
+                        className="filter-checkbox"
+                        checked={activeTab === 'offers'}
+                        onChange={e => handleProductViewChange(e.target.checked ? 'offers' : 'catalog')}
+                      />
+                      <span>{isAr ? 'العروض الخاصة فقط' : 'Special offers only'}</span>
+                    </label>
+                  </div>
 
                   <div className="filter-group">
                     <div className="filter-title">{t('catalog.searchTitle')}</div>
@@ -1331,10 +1412,7 @@ export default function App() {
                       {t('catalog.showing')} <span>{filteredProducts.length}</span> {t('catalog.of')} <span>{allProducts.length}</span> {t('catalog.parts')}
                     </div>
                     {(searchQuery || activeCategory !== 'all' || selectedBrands.length || filterCompatibleOnly || priceLimit < 20000) && (
-                      <button className="reset-filters-btn" onClick={() => {
-                        setActiveTab('catalog'); setSearchQuery(''); setActiveCategory('all');
-                        setSelectedBrands([]); setFilterCompatibleOnly(false); setPriceLimit(20000);
-                      }}>
+                      <button className="reset-filters-btn" onClick={resetFilters}>
                         {t('catalog.resetFilters')}
                       </button>
                     )}
@@ -1520,7 +1598,9 @@ export default function App() {
       {ownerAuthenticated && activeTab === 'dashboard' && <Dashboard />}
 
       {/* ═══ ADMIN PAGE ══════════════════════════════════════════ */}
-      {ownerAuthenticated && activeTab === 'admin' && <AdminPanel />}
+      {ownerAuthenticated && activeTab === 'admin' && (
+        <AdminPanel onProductsChange={handleCustomProductsChange} />
+      )}
 
       {ownerGateTarget && (
         <OwnerAccessModal
