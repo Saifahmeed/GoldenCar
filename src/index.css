@@ -256,7 +256,7 @@ ul {
   background: rgba(10, 10, 10, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   transition: var(--t-slow);
   /* Force dark mode variables for navbar */
   --text: #ffffff;
@@ -574,11 +574,11 @@ ul {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.6) 40%, rgba(5,5,5,0) 100%);
+  background: linear-gradient(90deg, rgba(5, 5, 5, 0.95) 0%, rgba(5, 5, 5, 0.6) 40%, rgba(5, 5, 5, 0) 100%);
 }
 
 [dir="rtl"] .hero-bg::after {
-  background: linear-gradient(270deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.6) 40%, rgba(5,5,5,0) 100%);
+  background: linear-gradient(270deg, rgba(5, 5, 5, 0.95) 0%, rgba(5, 5, 5, 0.6) 40%, rgba(5, 5, 5, 0) 100%);
 }
 
 .hero-content {
@@ -586,7 +586,7 @@ ul {
   z-index: 2;
   max-width: var(--container);
   margin: 0 auto;
-  padding: 60px 24px;
+  padding: 10px 24px;
   display: grid;
   grid-template-columns: 1fr 400px;
   gap: 60px;
@@ -858,6 +858,117 @@ ul {
   display: flex;
   gap: 40px;
   flex-wrap: wrap;
+}
+
+.hero-brand-strip {
+  position: relative;
+  width: 100%;
+  /* Force LTR for this decorative slider regardless of the page's overall
+     RTL direction. This is the actual fix for "disappears / doesn't come
+     back": `.hero-brand-track` below is `width: max-content` (shrink-to-fit).
+     In RTL, a shrink-to-fit block box anchors to its parent's RIGHT edge by
+     default — and since the track is many thousands of px wide (repeated
+     logos x2 halves), RTL anchoring left almost the entire track hanging
+     off-screen to the left permanently, with only a sliver near the tail
+     of the sequence ever visible. Forcing ltr here (also set via
+     `dir="ltr"` in the JSX, belt-and-suspenders) makes it anchor left like
+     any normal marquee, so the whole sequence sweeps through the viewport
+     as intended. */
+  direction: ltr;
+  margin-top: 0px;
+  overflow: hidden;
+  padding: 50px 0px;
+
+  /* deliberately nothing here: no background, no border, no blur, no shadow */
+  background: none;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-radius: 0;
+
+  /* fade logos out at the screen edges instead of a hard cut — this is the
+     only "smoothness" effect, not a visual frame */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 90px, #000 calc(100% - 90px), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 90px, #000 calc(100% - 90px), transparent 100%);
+}
+
+.hero-brand-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  /* continuous, constant-speed scroll — never pauses or waits for a batch
+     to finish, every item is always mid-flight. The two halves below are
+     byte-for-byte identical, so -50% is exactly one half's width and the
+     loop point is invisible. */
+  animation: hero-brand-scroll 50s linear infinite;
+  will-change: transform;
+  background: none;
+}
+
+.hero-brand-strip:hover .hero-brand-track {
+  animation-play-state: paused;
+}
+
+.marquee-brand-group {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+}
+
+.marquee-brand-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-shrink: 0;
+  padding: 0 44px;
+  background: none;
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+/* real, full-color brand logos — no masking/tinting, big and clean */
+.marquee-brand-logo {
+  height: 58px;
+  width: auto;
+  max-width: 150px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+  user-select: none;
+  pointer-events: none;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.marquee-brand-item:hover .marquee-brand-logo {
+  transform: scale(1.1);
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.5));
+}
+
+.marquee-brand-name {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+}
+
+@keyframes hero-brand-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .hero-stat {
@@ -4105,6 +4216,7 @@ select.form-input {
     border-bottom: 1px solid var(--border);
   }
 }
+
 .support-page-grid {
   display: grid;
   grid-template-columns: 1fr 1.2fr;
