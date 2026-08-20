@@ -30,7 +30,7 @@ function saveCustom(items) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
 }
 
-export default function AdminPanel() {
+export default function AdminPanel({ onProductsChange }) {
   const { t, isAr } = useLanguage();
   const [customProducts, setCustomProducts] = useState(loadCustom);
   const [form, setForm] = useState(emptyForm);
@@ -92,6 +92,7 @@ export default function AdminPanel() {
 
     setCustomProducts(updated);
     saveCustom(updated);
+    onProductsChange?.(updated);
     setForm(emptyForm);
     setEditId(null);
     setErrors({});
@@ -120,6 +121,7 @@ export default function AdminPanel() {
     const updated = customProducts.filter(p => p.id !== id);
     setCustomProducts(updated);
     saveCustom(updated);
+    onProductsChange?.(updated);
     if (editId === id) { setForm(emptyForm); setEditId(null); }
     showToast(t('admin.deleted'));
   };
