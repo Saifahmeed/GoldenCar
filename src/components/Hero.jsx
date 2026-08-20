@@ -262,6 +262,7 @@ export default function Hero({ onSelectVehicle, activeVehicle }) {
           </div>
         </div>
       </div>
+
     </section>
   );
 }

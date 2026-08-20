@@ -4,8 +4,12 @@ import { createContext, useContext, useState, useEffect } from 'react';
 const translations = {
   en: {
     // Navigation
+    'nav.home': 'Home',
+    'nav.products': 'Products',
+    'nav.offers': 'Special Offers',
+    'nav.contact': 'Get in Touch',
     'nav.catalog': 'Catalog',
-    'nav.warranty': 'Warranty',
+    'nav.about': 'About Us',
     'nav.support': 'Support',
     'nav.dashboard': 'Dashboard',
     'nav.admin': 'Admin',
@@ -126,6 +130,29 @@ const translations = {
     'ws.avgTime': 'Avg Install Time',
     'ws.book': 'Book Your Slot',
 
+    // About
+    'about.title': 'Built Around Your Car',
+    'about.eyebrow': 'The Golden Car Story',
+    'about.desc': 'Since 1990, Golden Car has helped drivers across Cairo upgrade, protect, and enjoy their cars. From premium lighting and smart screens to expert installation, every detail is chosen with real automotive experience.',
+    'about.story': 'One roof. Everything your car needs.',
+    'about.story.desc': 'We bring trusted brands, honest advice, and careful workmanship together in one workshop. Our team matches every upgrade to your car and your way of driving.',
+    'about.years': 'Years of experience',
+    'about.cars': 'Cars upgraded',
+    'about.brands': 'Trusted brands',
+    'about.cta': 'Talk to our team',
+
+    // Offers
+    'offers.title': 'Special Offers',
+    'offers.eyebrow': 'Limited Time Upgrades',
+    'offers.desc': 'Upgrade your car with workshop-selected packages and installation support from the Golden team.',
+    'offers.package1': 'Lighting Upgrade Package',
+    'offers.package1.desc': 'Premium LED projector lenses with professional fitment.',
+    'offers.package2': 'Smart Screen Package',
+    'offers.package2.desc': 'A connected Android cockpit with clean dashboard integration.',
+    'offers.package3': 'Performance Styling Package',
+    'offers.package3.desc': 'Sharper exterior details and performance-focused workshop upgrades.',
+    'offers.cta': 'Ask about today\'s offers',
+
     // FAQ
     'faq.title': 'Frequently Asked Questions',
     'faq.eyebrow': 'Got Questions?',
@@ -234,8 +261,12 @@ const translations = {
   },
   ar: {
     // Navigation
+    'nav.home': 'الرئيسية',
+    'nav.products': 'المنتجات',
+    'nav.offers': 'العروض الخاصة',
+    'nav.contact': 'تواصل مع فريقنا',
     'nav.catalog': 'المنتجات',
-    'nav.warranty': 'الضمان',
+    'nav.about': 'من نحن',
     'nav.support': 'الدعم',
     'nav.dashboard': 'لوحة التحكم',
     'nav.admin': 'الإدارة',
@@ -355,6 +386,29 @@ const translations = {
     'ws.completed': 'مكتمل اليوم',
     'ws.avgTime': 'متوسط وقت التركيب',
     'ws.book': 'احجز موعدك',
+
+    // About
+    'about.title': 'كل حاجة عربيتك محتاجاها',
+    'about.eyebrow': 'حكاية جولدن كار',
+    'about.desc': 'منذ ١٩٩٠، جولدن كار بتساعد أصحاب العربيات في القاهرة يطوروا ويحافظوا على عربياتهم. من الإضاءة الفاخرة والشاشات الذكية لحد التركيب الاحترافي، كل تفصيلة مبنية على خبرة حقيقية في السيارات.',
+    'about.story': 'تحت سقف واحد. كل حاجة عربيتك محتاجاها.',
+    'about.story.desc': 'جمعنا ماركات موثوقة ونصيحة صادقة وشغل متقن في ورشة واحدة. فريقنا بيساعدك تختار التعديل المناسب لعربيتك وطريقة استخدامك.',
+    'about.years': 'سنة خبرة',
+    'about.cars': 'عربية اتطورت',
+    'about.brands': 'ماركة موثوقة',
+    'about.cta': 'كلم فريقنا',
+
+    // Offers
+    'offers.title': 'عروض جولدن كار',
+    'offers.eyebrow': 'عروض لفترة محدودة',
+    'offers.desc': 'طور عربيتك بباكدجات مختارة من ورشتنا مع دعم كامل في التركيب من فريق جولدن.',
+    'offers.package1': 'باكدج تطوير الإضاءة',
+    'offers.package1.desc': 'عدسات LED فاخرة مع تركيب احترافي.',
+    'offers.package2': 'باكدج الشاشة الذكية',
+    'offers.package2.desc': 'شاشة أندرويد متكاملة بشكل نظيف مع تابلوه عربيتك.',
+    'offers.package3': 'باكدج الأداء والشكل',
+    'offers.package3.desc': 'تفاصيل خارجية أقوى وتعديلات أداء مختارة من الورشة.',
+    'offers.cta': 'اسأل عن عروض النهارده',
 
     // FAQ
     'faq.title': 'الأسئلة الشائعة',

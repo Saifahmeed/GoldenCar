@@ -33,7 +33,7 @@ export const getProductImageStyle = (productId) => {
   return { transform: 'none', filter: 'none' };
 };
 
-export default function ProductCard({ product, activeVehicle, onClick, onAddToCart }) {
+export default function ProductCard({ product, activeVehicle, onClick, onAddToCart, isAr }) {
   // Compatibility Check Logic
   const getCompatibility = () => {
     if (!activeVehicle) {
@@ -77,15 +77,32 @@ export default function ProductCard({ product, activeVehicle, onClick, onAddToCa
           <span>{compat.text}</span>
         </div>
 
+        {product.offer && <span className="product-offer-badge">-{product.offer.discount}% OFF</span>}
+
         {/* Category Label */}
         <span className="product-category-label">
           {product.category}
         </span>
       </div>
 
+      {product.offer && (
+        <div className="product-offer-strip">
+          <span>عرض خاص</span>
+          <del>{product.offer.oldPrice.toLocaleString('en-US')} {isAr ? 'ج.م' : 'EGP'}</del>
+          <strong>{product.price.toLocaleString('en-US')} {isAr ? 'ج.م' : 'EGP'}</strong>
+          <small>{isAr ? `لمدة ${product.offer.duration} أيام` : `${product.offer.duration} days only`}</small>
+        </div>
+      )}
+
       {/* Product Details Info */}
       <div className="product-info">
         <span className="product-brand">{product.brand}</span>
+        {product.offer && (
+          <div className="product-offer-details">
+            <span>عرض خاص</span>
+            <strong>-{product.offer.discount}%</strong>
+          </div>
+        )}
         <h4 className="product-name" title={product.name}>{product.name}</h4>
         
         {/* Rating stars */}
@@ -103,7 +120,21 @@ export default function ProductCard({ product, activeVehicle, onClick, onAddToCa
 
         {/* Footer row with price & add button */}
         <div className="product-footer">
-          <span className="product-price">${product.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+          <div className="product-price-stack">
+            {product.offer ? (
+              <>
+                <div className="offer-price-row">
+                  <del className="product-old-price">{product.offer.oldPrice.toLocaleString('en-US')} {isAr ? 'ج.م' : 'EGP'}</del>
+                  <span className="product-price">{product.price.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} {isAr ? 'ج.م' : 'EGP'}</span>
+                </div>
+                <span className="offer-duration">
+                  {isAr ? `العرض ساري ${product.offer.duration} أيام` : `Offer valid for ${product.offer.duration} days`}
+                </span>
+              </>
+            ) : (
+              <span className="product-price">{product.price.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} {isAr ? 'ج.م' : 'EGP'}</span>
+            )}
+          </div>
           <button 
             className="add-cart-btn" 
             onClick={handleQuickAdd}
