@@ -118,7 +118,7 @@ function OwnerAccessModal({ isAr, target, onSuccess, onClose }) {
 function PrivateToolsBar({ activeTab, setActiveTab, isAr }) {
   return (
     <div className="private-tools-bar">
-      <span>{isAr ? 'أدوات الإدارة' : 'Management Tools'}</span>
+      {/* <span>{isAr ? 'أدوات الإدارة' : 'Management Tools'}</span> */}
       <button className={activeTab === 'dashboard' ? 'active' : ''} onClick={() => setActiveTab('dashboard')}>
         {isAr ? 'لوحة التحكم' : 'Analytics Dashboard'}
       </button>
