@@ -39,6 +39,11 @@ export const categoriesData = [
   { id: "exterior", name: "Exterior Styling", nameAr: "إكسسوارات خارجية", icon: "Wind" }
 ];
 
+export function getOfferDiscount(product) {
+  if (!product?.offer || product.offer.oldPrice <= 0) return 0;
+  return Number((((product.offer.oldPrice - product.price) / product.offer.oldPrice) * 100).toFixed(1));
+}
+
 // Brands organized by category (from old Golden Car website)
 export const brandsData = [
   {

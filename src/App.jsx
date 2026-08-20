@@ -5,7 +5,7 @@ import {
   ChevronDown, ChevronLeft, ChevronRight, ShoppingBag, X, Star, Plus, Minus, Moon, Sun
 } from 'lucide-react';
 
-import { productsData, categoriesData, brandsData, vehiclesData } from './data/catalog';
+import { productsData, categoriesData, brandsData, vehiclesData, getOfferDiscount } from './data/catalog';
 import { useLanguage } from './data/i18n.jsx';
 
 import { seedDashboardData } from './data/dashboardData';
@@ -170,7 +170,7 @@ function ProductCard({ product, activeVehicle, onClick, onAddToCart, isAr, t }) 
             {isCompatible ? t('product.compatible') : t('product.notCompatible')}
           </span>
         )}
-        {product.offer && <span className="product-offer-badge">-{product.offer.discount}% OFF</span>}
+        {product.offer && <span className="product-offer-badge">-{getOfferDiscount(product)}% OFF</span>}
       </div>
       <div className="product-body">
         <div className="product-brand">{product.brand}</div>
@@ -842,7 +842,7 @@ function ContactSection({ t, isAr }) {
                   <div className="contact-item-label">{item.label}</div>
                   <div className="contact-item-value">
                     {item.href
-                      ? <a href={item.href}>{item.value}</a>
+                      ? <a href={item.href} dir="ltr">{item.value}</a>
                       : item.value
                     }
                   </div>
@@ -915,7 +915,7 @@ function ContactSection({ t, isAr }) {
 }
 
 // ─── Footer ───────────────────────────────────────────────────────
-function Footer({ t, isAr, setActiveTab }) {
+function Footer({ t, isAr, setActiveTab, setActiveCategory }) {
   return (
     <footer className="main-footer">
       <div className="footer-grid">
@@ -941,9 +941,18 @@ function Footer({ t, isAr, setActiveTab }) {
           <div className="footer-col-title">{t('footer.shop')}</div>
           <div className="footer-links">
             {['lighting', 'screens', 'seats', 'floormats', 'exterior'].map(cat => (
-              <span key={cat} className="footer-link-item" onClick={() => { setActiveTab('catalog'); setActiveCategory(cat); setShowCatalog(true); }}>
+              <button
+                key={cat}
+                type="button"
+                className="footer-link-item"
+                onClick={() => {
+                  setActiveTab('catalog');
+                  setActiveCategory(cat);
+                  window.setTimeout(() => document.getElementById('shop-catalog-anchor')?.scrollIntoView({ behavior: 'smooth' }), 0);
+                }}
+              >
                 {isAr ? categoriesData.find(c => c.id === cat)?.nameAr : categoriesData.find(c => c.id === cat)?.name}
-              </span>
+              </button>
             ))}
           </div>
         </div>
@@ -952,23 +961,32 @@ function Footer({ t, isAr, setActiveTab }) {
         <div>
           <div className="footer-col-title">{t('nav.support')}</div>
           <div className="footer-links">
-            <span className="footer-link-item" onClick={() => setActiveTab('support')}>{t('nav.support')}</span>
+            <button type="button" className="footer-link-item" onClick={() => setActiveTab('support')}>
+              {t('nav.support')}
+            </button>
           </div>
         </div>
 
-        {/* Contact */}
         <div>
           <div className="footer-col-title">{t('footer.contact')}</div>
           <div className="footer-links" style={{ gap: '14px' }}>
             {[
-              { Icon: MapPin, text: t('contact.location') },
-              { Icon: Phone, text: '+20 111 192 6799' },
+              { Icon: MapPin, text: t('contact.location'), href: 'https://maps.google.com/?q=Golden+Car+Cairo' },
+              { Icon: Phone, text: isAr ? t('contact.phone') : '+20 111 192 6799' },
               { Icon: Mail, text: 'Hussein.sayed.hassn91@gmail.com' },
               { Icon: Clock, text: t('contact.hours') },
             ].map((item, i) => (
               <div key={i} className="footer-contact-item">
                 <item.Icon size={14} className="footer-contact-icon" />
-                <span>{item.text}</span>
+                {item.href ? (
+                  <a href={item.href} target="_blank" rel="noopener noreferrer">{item.text}</a>
+                ) : item.Icon === Phone ? (
+                  <a href="tel:+201111926799" dir="ltr">{item.text}</a>
+                ) : item.Icon === Mail ? (
+                  <a href="mailto:Hussein.sayed.hassn91@gmail.com">{item.text}</a>
+                ) : (
+                  <span>{item.text}</span>
+                )}
               </div>
             ))}
           </div>
@@ -1634,7 +1652,7 @@ export default function App() {
 
       {/* ─── Footer (show on catalog, about, and support) ─── */}
       {['catalog', 'about', 'offers', 'support'].includes(activeTab) && (
-        <Footer t={t} isAr={isAr} setActiveTab={setActiveTab} />
+        <Footer t={t} isAr={isAr} setActiveTab={setActiveTab} setActiveCategory={setActiveCategory} />
       )}
 
       {/* ─── Overlays ─── */}

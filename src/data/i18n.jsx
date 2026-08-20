@@ -422,7 +422,7 @@ const translations = {
     'contact.title': 'زورنا في القاهرة',
     'contact.eyebrow': 'التواصل والعنوان',
     'contact.location': 'جولدن كار ستورز، التوفيقية، القاهرة، مصر',
-    'contact.phone': '٠١١١ ١٩٢ ٦٧٩٩',
+    'contact.phone': '+20 111 192 6799',
     'contact.email': 'Hussein.sayed.hassn91@gmail.com',
     'contact.hours': 'السبت–الخميس: ١٠ ص – ١٠ م',
     'contact.whatsapp': 'تواصل على واتساب',

@@ -13,6 +13,7 @@ import brakePadsImg from '../assets/brake_pads.jpg';
 import ignitionCoilsImg from '../assets/ignition_coils.jpg';
 import intercoolerImg from '../assets/intercooler.jpg';
 import downpipeImg from '../assets/downpipe.jpg';
+import { getOfferDiscount } from '../data/catalog';
 
 const imageMap = {
   "coilovers.jpg": coiloversImg,
@@ -77,7 +78,7 @@ export default function ProductCard({ product, activeVehicle, onClick, onAddToCa
           <span>{compat.text}</span>
         </div>
 
-        {product.offer && <span className="product-offer-badge">-{product.offer.discount}% OFF</span>}
+        {product.offer && <span className="product-offer-badge">-{getOfferDiscount(product)}% OFF</span>}
 
         {/* Category Label */}
         <span className="product-category-label">
@@ -100,7 +101,7 @@ export default function ProductCard({ product, activeVehicle, onClick, onAddToCa
         {product.offer && (
           <div className="product-offer-details">
             <span>عرض خاص</span>
-            <strong>-{product.offer.discount}%</strong>
+            <strong>-{getOfferDiscount(product)}%</strong>
           </div>
         )}
         <h4 className="product-name" title={product.name}>{product.name}</h4>
