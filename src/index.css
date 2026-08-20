@@ -577,6 +577,29 @@ ul {
   background: linear-gradient(90deg, rgba(5, 5, 5, 0.95) 0%, rgba(5, 5, 5, 0.6) 40%, rgba(5, 5, 5, 0) 100%);
 }
 
+.hero-brand-mark {
+  position: absolute;
+  top: 38%;
+  right: 14%;
+  z-index: 2;
+  padding: 30px 42px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.32);
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-brand-mark img {
+  height: 260px !important;
+}
+
+[dir="rtl"] .hero-brand-mark {
+  right: auto;
+  left: 14%;
+}
+
 [dir="rtl"] .hero-bg::after {
   background: linear-gradient(270deg, rgba(5, 5, 5, 0.95) 0%, rgba(5, 5, 5, 0.6) 40%, rgba(5, 5, 5, 0) 100%);
 }
@@ -4486,6 +4509,25 @@ select.form-input {
     display: flex;
   }
 
+  .hero-brand-mark {
+    top: 36%;
+    right: 10%;
+    padding: 24px 34px;
+  }
+
+  [dir="rtl"] .hero-brand-mark {
+    right: auto;
+    left: 10%;
+  }
+
+  .hero-brand-mark img {
+    height: 200px !important;
+  }
+
+  .hero-vehicle-cta {
+    white-space: nowrap;
+  }
+
   .main-header {
     padding: 0 12px;
     gap: 8px;
@@ -5056,4 +5098,27 @@ select.form-input {
 
 .footer-contact-item a:hover {
   color: var(--red);
+}
+
+.hero-vehicle-cta {
+  position: static;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px auto 0;
+  padding: 13px 22px;
+  border: 1px solid var(--red);
+  border-radius: 999px;
+  background: var(--red);
+  color: #fff;
+  font-size: 0.84rem;
+  font-weight: 800;
+  box-shadow: 0 10px 28px rgba(227, 30, 36, 0.28);
+  transition: var(--t);
+}
+
+.hero-vehicle-cta:hover {
+  background: var(--red-light);
+  transform: translateY(-2px);
 }

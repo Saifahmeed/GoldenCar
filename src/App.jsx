@@ -1329,7 +1329,7 @@ export default function App() {
       {/* ═══ CATALOG PAGE ══════════════════════════════════════════ */}
       {(activeTab === 'catalog' || activeTab === 'offers') && (
         <>
-          <Hero onSelectVehicle={handleAddVehicle} activeVehicle={activeVehicle} />
+          <Hero onSelectVehicle={handleAddVehicle} onGarageClick={() => setIsGarageOpen(true)} activeVehicle={activeVehicle} />
 
           {/* Marquee */}
           <div className="marquee-section">

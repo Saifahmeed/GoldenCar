@@ -2,6 +2,7 @@ import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { Car, ChevronRight, ArrowRight } from 'lucide-react';
 import { vehiclesData } from '../data/catalog';
 import { useLanguage } from '../data/i18n.jsx';
+import Logo from './Logo';
 const featuredBrands = [
   { name: 'Mercedes', logo: '/img/brands/mercedes.svg' },
   { name: 'BMW', logo: '/img/brands/bmw.svg' },
@@ -98,7 +99,7 @@ function StatItem({ stat, started }) {
   );
 }
 
-export default function Hero({ onSelectVehicle, activeVehicle }) {
+export default function Hero({ onSelectVehicle, onGarageClick, activeVehicle }) {
   const { t, isAr } = useLanguage();
 
   const [selectedMake, setSelectedMake] = useState('');
@@ -139,6 +140,14 @@ export default function Hero({ onSelectVehicle, activeVehicle }) {
   return (
     <section className="hero-section" id="hero">
       <div className="hero-bg" />
+      <div className="hero-brand-mark" aria-label="Golden Car Stores">
+        <Logo height={52} />
+        <button type="button" className="hero-vehicle-cta" onClick={onGarageClick}>
+          <Car size={18} />
+          {isAr ? 'اختار عربيتك' : 'Choose Your Car'}
+          <ChevronRight size={16} />
+        </button>
+      </div>
 
       <div className="hero-content">
         {/* Left — Headline & CTAs */}
