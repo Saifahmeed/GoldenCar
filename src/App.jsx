@@ -21,8 +21,31 @@ import AdminPanel from './components/AdminPanel';
 function loadCustomProducts() {
   try {
     const raw = localStorage.getItem('gc_custom_products');
+    const products = raw ? JSON.parse(raw) : [];
+    return products.map(product => {
+      if (!product.offer || product.offer.oldPrice <= 0) return product;
+      const oldPrice = Math.round(product.offer.oldPrice);
+      const price = Math.round(product.price);
+      const discount = Number((((oldPrice - price) / oldPrice) * 100).toFixed(1));
+      return { ...product, offer: { ...product.offer, discount, discountIsInput: false } };
+    });
+  } catch { return []; }
+}
+
+function loadDeletedProducts() {
+  try {
+    const raw = localStorage.getItem('gc_deleted_products');
     return raw ? JSON.parse(raw) : [];
   } catch { return []; }
+}
+
+function loadStoredValue(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw === null ? fallback : JSON.parse(raw);
+  } catch {
+    return fallback;
+  }
 }
 
 // ─── Format EGP ─────────────────────────────────────────────────
@@ -148,7 +171,9 @@ function ProductCard({ product, activeVehicle, onClick, onAddToCart, isAr, t }) 
     'intake.jpg': '/img/intake.jpg',
   };
 
-  const imgSrc = imgMap[product.image] || imgMap['brakes.jpg'];
+  const imgSrc = product.image?.startsWith('data:')
+    ? product.image
+    : imgMap[product.image] || imgMap['brakes.jpg'];
 
   let isCompatible = null;
   if (activeVehicle && product.compatibility?.length) {
@@ -163,7 +188,9 @@ function ProductCard({ product, activeVehicle, onClick, onAddToCart, isAr, t }) 
       <div className="product-img-wrap">
         <img src={imgSrc} alt={displayName} className="product-img" loading="lazy" />
         {product.isCustom && (
-          <span className="product-badge">{t('admin.customBadge')}</span>
+          <span className={`product-badge${product.isEdited ? ' product-edited-badge' : ''}`}>
+            {product.isEdited ? t('admin.editedBadge') : t('admin.customBadge')}
+          </span>
         )}
         {isCompatible !== null && (
           <span className={`product-compat ${isCompatible ? 'compatible' : 'not-compatible'}`}>
@@ -232,7 +259,9 @@ function ProductModal({ product, isOpen, onClose, activeVehicle, onAddToCart, is
     'intake.jpg': '/img/intake.jpg',
   };
 
-  const imgSrc = imgMap[product.image] || imgMap['brakes.jpg'];
+  const imgSrc = product.image?.startsWith('data:')
+    ? product.image
+    : imgMap[product.image] || imgMap['brakes.jpg'];
   const displayName = isAr && product.nameAr ? product.nameAr : product.name;
   const displayDesc = isAr && product.descriptionAr ? product.descriptionAr : product.description;
 
@@ -1008,7 +1037,7 @@ function Footer({ t, isAr, setActiveTab, setActiveCategory }) {
 export default function App() {
   const { t, isAr } = useLanguage();
 
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState(() => loadStoredValue('gc_theme', 'light'));
   const [activeTab, setActiveTab] = useState(() => sessionStorage.getItem('gc_active_tab') || 'catalog');
   const [ownerGateTarget, setOwnerGateTarget] = useState(null);
   const [ownerAuthenticated, setOwnerAuthenticated] = useState(false);
@@ -1024,13 +1053,13 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  const [garageList, setGarageList] = useState([
+  const [garageList, setGarageList] = useState(() => loadStoredValue('gc_garage_list', [
     { make: 'Toyota', model: 'Corolla', year: '2022', engine: '1.6L Active CVT (120 HP)' }
-  ]);
-  const [activeVehicle, setActiveVehicle] = useState(
+  ]));
+  const [activeVehicle, setActiveVehicle] = useState(() => loadStoredValue('gc_active_vehicle',
     { make: 'Toyota', model: 'Corolla', year: '2022', engine: '1.6L Active CVT (120 HP)' }
-  );
-  const [cartList, setCartList] = useState([]);
+  ));
+  const [cartList, setCartList] = useState(() => loadStoredValue('gc_cart_list', []));
 
   // Ticket form
   const [ticketPart, setTicketPart] = useState('');
@@ -1040,6 +1069,7 @@ export default function App() {
 
   // Load custom products from admin
   const [customProducts, setCustomProducts] = useState(loadCustomProducts);
+  const [deletedProductIds, setDeletedProductIds] = useState(loadDeletedProducts);
   const resetScrollPosition = useRef(null);
   const previousPage = useRef(currentPage);
 
@@ -1059,6 +1089,22 @@ export default function App() {
   useEffect(() => {
     sessionStorage.setItem('gc_active_tab', activeTab);
   }, [activeTab]);
+
+  useEffect(() => {
+    localStorage.setItem('gc_theme', JSON.stringify(theme));
+  }, [theme]);
+
+  useEffect(() => {
+    localStorage.setItem('gc_garage_list', JSON.stringify(garageList));
+  }, [garageList]);
+
+  useEffect(() => {
+    localStorage.setItem('gc_active_vehicle', JSON.stringify(activeVehicle));
+  }, [activeVehicle]);
+
+  useEffect(() => {
+    localStorage.setItem('gc_cart_list', JSON.stringify(cartList));
+  }, [cartList]);
 
   const handleOwnerAccess = (target) => {
     if (target === 'owner-login') {
@@ -1083,10 +1129,15 @@ export default function App() {
     if (activeTab === 'catalog' || activeTab === 'offers') setCustomProducts(loadCustomProducts());
   }, [activeTab]);
 
-  const allProducts = [...productsData, ...customProducts];
+  const customIds = new Set(customProducts.map(product => product.id));
+  const allProducts = [
+    ...productsData.filter(product => !deletedProductIds.includes(product.id) && !customIds.has(product.id)),
+    ...customProducts,
+  ];
 
-  const handleCustomProductsChange = (updatedProducts) => {
+  const handleCustomProductsChange = (updatedProducts, updatedDeletedIds) => {
     setCustomProducts(updatedProducts);
+    if (updatedDeletedIds) setDeletedProductIds(updatedDeletedIds);
   };
 
   const resetFilters = () => {

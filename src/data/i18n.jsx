@@ -229,6 +229,7 @@ const translations = {
     'admin.brand': 'Brand',
     'admin.category': 'Category',
     'admin.price': 'Price (EGP)',
+    'admin.discount': 'Discount (%)',
     'admin.sku': 'SKU Code',
     'admin.description': 'Description',
     'admin.image': 'Product Image',
@@ -241,6 +242,7 @@ const translations = {
     'admin.deleted': 'Product deleted.',
     'admin.noProducts': 'No custom products yet.',
     'admin.customBadge': 'Custom',
+    'admin.editedBadge': 'Edited',
     'admin.staticBadge': 'Static',
 
     // Footer
@@ -488,6 +490,7 @@ const translations = {
     'admin.brand': 'الماركة',
     'admin.category': 'الفئة',
     'admin.price': 'السعر (جنيه)',
+    'admin.discount': 'الخصم (%)',
     'admin.sku': 'كود المنتج',
     'admin.description': 'الوصف',
     'admin.image': 'صورة المنتج',
@@ -500,6 +503,7 @@ const translations = {
     'admin.deleted': 'تم حذف المنتج.',
     'admin.noProducts': 'لا توجد منتجات مضافة بعد.',
     'admin.customBadge': 'مضاف',
+    'admin.editedBadge': 'معدل',
     'admin.staticBadge': 'أساسي',
 
     // Footer

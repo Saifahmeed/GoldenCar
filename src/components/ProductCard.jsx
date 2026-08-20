@@ -63,7 +63,7 @@ export default function ProductCard({ product, activeVehicle, onClick, onAddToCa
       {/* Product Image and badges */}
       <div className="product-img-wrapper">
         <img 
-          src={imageMap[product.image]} 
+          src={product.image?.startsWith('data:') ? product.image : imageMap[product.image]} 
           alt={product.name} 
           className="product-img"
           loading="lazy"
@@ -78,6 +78,9 @@ export default function ProductCard({ product, activeVehicle, onClick, onAddToCa
           <span>{compat.text}</span>
         </div>
 
+        {product.isEdited && (
+          <span className="product-badge product-edited-badge">{isAr ? 'معدل' : 'EDITED'}</span>
+        )}
         {product.offer && <span className="product-offer-badge">-{getOfferDiscount(product)}% OFF</span>}
 
         {/* Category Label */}

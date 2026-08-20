@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Check, X } from 'lucide-react';
-import { productsData, categoriesData } from '../data/catalog';
+import { productsData, categoriesData, getOfferDiscount } from '../data/catalog';
 import { useLanguage } from '../data/i18n.jsx';
 
 
 const STORAGE_KEY = 'gc_custom_products';
+const DELETED_KEY = 'gc_deleted_products';
 
 const emptyForm = {
   name: '',
@@ -12,7 +13,9 @@ const emptyForm = {
   brand: '',
   category: 'lighting',
   price: '',
+  discount: '0',
   sku: '',
+  image: '',
   description: '',
   descriptionAr: '',
 };
@@ -20,7 +23,12 @@ const emptyForm = {
 function loadCustom() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const products = raw ? JSON.parse(raw) : [];
+    return products.map(product => {
+      if (!product.offer || product.offer.oldPrice <= 0) return product;
+      const discount = Number((((Math.round(product.offer.oldPrice) - Math.round(product.price)) / Math.round(product.offer.oldPrice)) * 100).toFixed(1));
+      return { ...product, offer: { ...product.offer, discount, discountIsInput: false } };
+    });
   } catch {
     return [];
   }
@@ -30,15 +38,29 @@ function saveCustom(items) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
 }
 
+function loadDeleted() {
+  try {
+    const raw = localStorage.getItem(DELETED_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
 export default function AdminPanel({ onProductsChange }) {
   const { t, isAr } = useLanguage();
   const [customProducts, setCustomProducts] = useState(loadCustom);
+  const [deletedProductIds, setDeletedProductIds] = useState(loadDeleted);
   const [form, setForm] = useState(emptyForm);
   const [editId, setEditId] = useState(null);
   const [errors, setErrors] = useState({});
   const [toast, setToast] = useState('');
 
-  const allProducts = [...productsData, ...customProducts];
+  const customIds = new Set(customProducts.map(product => product.id));
+  const allProducts = [
+    ...productsData.filter(product => !deletedProductIds.includes(product.id) && !customIds.has(product.id)),
+    ...customProducts,
+  ];
 
   // Show toast
   const showToast = (msg) => {
@@ -52,6 +74,7 @@ export default function AdminPanel({ onProductsChange }) {
     if (!form.name.trim()) e.name = true;
     if (!form.brand.trim()) e.brand = true;
     if (!form.price || isNaN(form.price) || Number(form.price) <= 0) e.price = true;
+    if (form.discount === '' || isNaN(form.discount) || Number(form.discount) < 0 || Number(form.discount) >= 100) e.discount = true;
     if (!form.sku.trim()) e.sku = true;
     // Check SKU uniqueness (skip for edit)
     const skuExists = allProducts.some(p => p.sku === form.sku.trim() && p.id !== editId);
@@ -68,22 +91,39 @@ export default function AdminPanel({ onProductsChange }) {
     const e = validate();
     if (Object.keys(e).length) { setErrors(e); return; }
 
+    const originalPrice = Number(form.price);
+    const discount = Number(form.discount);
+    const existingProduct = editId ? allProducts.find(product => product.id === editId) : null;
+    const salePrice = discount > 0
+      ? Number((originalPrice * (1 - discount / 100)).toFixed(2))
+      : originalPrice;
     const product = {
       ...form,
       id: editId || `custom-${Date.now()}`,
-      price: Number(form.price),
+      price: salePrice,
+      offer: discount > 0
+        ? {
+          oldPrice: originalPrice,
+          discount,
+          discountIsInput: true,
+          duration: 7,
+        }
+        : undefined,
       rating: 4.5,
       reviewsCount: 0,
       reviews: [],
       specs: {},
       compatibility: [],
-      image: 'brakes.jpg', // default
+      image: form.image || existingProduct?.image || 'brakes.jpg',
+      isEdited: Boolean(editId),
       isCustom: true,
     };
 
     let updated;
     if (editId) {
-      updated = customProducts.map(p => p.id === editId ? product : p);
+      updated = customProducts.some(p => p.id === editId)
+        ? customProducts.map(p => p.id === editId ? product : p)
+        : [...customProducts, product];
       showToast(t('admin.saved'));
     } else {
       updated = [...customProducts, product];
@@ -92,20 +132,21 @@ export default function AdminPanel({ onProductsChange }) {
 
     setCustomProducts(updated);
     saveCustom(updated);
-    onProductsChange?.(updated);
+    onProductsChange?.(updated, deletedProductIds);
     setForm(emptyForm);
     setEditId(null);
     setErrors({});
   };
 
   const handleEdit = (product) => {
-    if (!product.isCustom) return; // Can't edit static products
     setForm({
       name: product.name,
       nameAr: product.nameAr || '',
       brand: product.brand,
       category: product.category,
-      price: product.price.toString(),
+      price: (product.offer?.oldPrice || product.price).toString(),
+      image: product.image || '',
+      discount: product.offer ? getOfferDiscount(product).toString() : '0',
       sku: product.sku,
       description: product.description || '',
       descriptionAr: product.descriptionAr || '',
@@ -115,13 +156,18 @@ export default function AdminPanel({ onProductsChange }) {
   };
 
   const handleDelete = (id) => {
-    const product = customProducts.find(p => p.id === id);
+    const product = allProducts.find(p => p.id === id);
     if (!product) return;
     if (!window.confirm(t('admin.deleteConfirm'))) return;
     const updated = customProducts.filter(p => p.id !== id);
+    const updatedDeleted = product.isCustom
+      ? deletedProductIds
+      : [...deletedProductIds, id];
     setCustomProducts(updated);
+    setDeletedProductIds(updatedDeleted);
     saveCustom(updated);
-    onProductsChange?.(updated);
+    localStorage.setItem(DELETED_KEY, JSON.stringify(updatedDeleted));
+    onProductsChange?.(updated, updatedDeleted);
     if (editId === id) { setForm(emptyForm); setEditId(null); }
     showToast(t('admin.deleted'));
   };
@@ -137,9 +183,10 @@ export default function AdminPanel({ onProductsChange }) {
   return (
     <div className="admin-page" style={{ marginTop: 'var(--header-h)' }}>
       {/* Header */}
-      <div style={{ marginBottom: '32px' }}>
-        <div className="eyebrow">{t('admin.eyebrow')}</div>
+      <div className="admin-page-header">
+        <div className="admin-page-kicker"><span />{t('admin.eyebrow')}</div>
         <h2 className="display-md">{t('admin.title')}</h2>
+        <p>{isAr ? 'أدر المنتجات والأسعار والعروض من مكان واحد.' : 'Manage products, pricing, and offers from one place.'}</p>
       </div>
 
       <div className="admin-grid">
@@ -233,6 +280,54 @@ export default function AdminPanel({ onProductsChange }) {
               </div>
             </div>
 
+            <div className="form-group">
+              <label className="form-label">{t('admin.discount')}</label>
+              <input
+                className={`form-input${errors.discount ? ' error' : ''}`}
+                type="number"
+                min="0"
+                max="99.9"
+                step="0.1"
+                value={form.discount}
+                onChange={e => handleChange('discount', e.target.value)}
+                placeholder="0"
+                style={errors.discount ? { borderColor: 'var(--red)' } : {}}
+              />
+              {form.price && Number(form.discount) > 0 && Number(form.discount) < 100 && (
+                <div style={{ marginTop: '6px', fontSize: '0.72rem', color: 'var(--text-3)' }}>
+                  {isAr ? 'السعر بعد الخصم: ' : 'Price after discount: '}
+                  <strong style={{ color: 'var(--red)' }}>
+                    {(
+                      Number(form.price) * (1 - Number(form.discount) / 100)
+                    ).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                  </strong>
+                </div>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">{isAr ? 'صورة المنتج' : 'Product Image'}</label>
+              <input
+                className="form-input"
+                type="file"
+                accept="image/*"
+                onChange={event => {
+                  const file = event.target.files?.[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onload = () => handleChange('image', reader.result);
+                  reader.readAsDataURL(file);
+                }}
+              />
+              {form.image && (
+                <img
+                  src={form.image.startsWith('data:') ? form.image : `/img/${form.image}`}
+                  alt={isAr ? 'معاينة صورة المنتج' : 'Product preview'}
+                  style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: 'var(--radius)', marginTop: '8px' }}
+                />
+              )}
+            </div>
+
             {/* Description */}
             <div className="form-group">
               <label className="form-label">{t('admin.description')} (EN)</label>
@@ -308,26 +403,22 @@ export default function AdminPanel({ onProductsChange }) {
                   {product.price.toLocaleString()} {isAr ? 'ج.م' : 'EGP'}
                 </div>
 
-                <span className={`admin-badge ${product.isCustom ? 'custom' : 'static'}`}>
-                  {product.isCustom ? t('admin.customBadge') : t('admin.staticBadge')}
+                <span className={`admin-badge ${product.isEdited ? 'edited' : product.isCustom ? 'custom' : 'static'}`}>
+                  {product.isEdited ? t('admin.editedBadge') : product.isCustom ? t('admin.customBadge') : t('admin.staticBadge')}
                 </span>
 
                 <div className="admin-product-actions">
                   <button
                     className="admin-action"
                     onClick={() => handleEdit(product)}
-                    disabled={!product.isCustom}
-                    title={product.isCustom ? t('admin.edit') : isAr ? 'لا يمكن تعديل المنتجات الأساسية' : 'Cannot edit static products'}
-                    style={!product.isCustom ? { opacity: 0.3, cursor: 'not-allowed' } : {}}
+                    title={t('admin.edit')}
                   >
                     <Edit2 size={14} />
                   </button>
                   <button
                     className="admin-action delete"
                     onClick={() => handleDelete(product.id)}
-                    disabled={!product.isCustom}
-                    title={product.isCustom ? t('admin.delete') : isAr ? 'لا يمكن حذف المنتجات الأساسية' : 'Cannot delete static products'}
-                    style={!product.isCustom ? { opacity: 0.3, cursor: 'not-allowed' } : {}}
+                    title={t('admin.delete')}
                   >
                     <Trash2 size={14} />
                   </button>
