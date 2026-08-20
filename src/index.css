@@ -2559,11 +2559,108 @@ ul {
   background: var(--bg-2);
 }
 
-.contact-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+/* ============================================================
+   CONTACT SECTION LAYOUT
+   ============================================================ */
+.contact-flex-container {
+  display: flex;
+  flex-direction: row;
+  /* Default layout */
   gap: 40px;
-  align-items: start;
+  align-items: stretch;
+  /* Makes both sides perfectly equal in height */
+}
+
+/* 
+  Because Arabic flips standard row order, this rule FORCES the 
+  Form to ALWAYS be on the visual left, and Info to the right. 
+*/
+.contact-flex-container.is-rtl {
+  flex-direction: row-reverse;
+}
+
+/* The Two Columns */
+.contact-form-side {
+  flex: 1;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-info-side {
+  flex: 1;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  /* Space exactly between Info text and Map */
+}
+
+/* Responsive for Mobile */
+@media (max-width: 900px) {
+
+  .contact-flex-container,
+  .contact-flex-container.is-rtl {
+    flex-direction: column-reverse;
+    /* Puts Info on top, Form on bottom for mobile */
+  }
+
+  .contact-form-side,
+  .contact-info-side {
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   CONTACT FORM
+   ============================================================ */
+.contact-form {
+  flex-grow: 1;
+  /* Forces the form to stretch top-to-bottom */
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-form form {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  /* Allows inner form elements to fill space */
+}
+
+/* ============================================================
+   CONTACT — MAP CARD
+   ============================================================ */
+.contact-map-card {
+  flex-grow: 1;
+  /* Pushes the map to fill all remaining height underneath the info */
+  min-height: 250px;
+  /* Ensures it never gets too squished */
+  width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  cursor: pointer;
+  display: block;
+  transition: var(--t);
+}
+
+.contact-map-card:hover {
+  border-color: var(--border-red);
+}
+
+.contact-map-iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  pointer-events: none;
+  filter: invert(92%) hue-rotate(180deg) brightness(0.95) contrast(0.92);
 }
 
 .contact-info {

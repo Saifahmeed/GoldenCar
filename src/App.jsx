@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   HelpCircle, Car, Check, ArrowRight,
   SlidersHorizontal, Mail, Phone, MapPin, Clock, MessageSquare,
-  ChevronDown, ChevronLeft, ChevronRight, ShoppingBag, X, Star, Plus, Minus, Moon, Sun
+  ChevronDown, ChevronLeft, ChevronRight, ShoppingBag, X, Star, Plus, Minus, Moon, Sun,
+  Navigation
 } from 'lucide-react';
 
 import { productsData, categoriesData, brandsData, vehiclesData, getOfferDiscount } from './data/catalog';
@@ -804,8 +805,37 @@ function BrandsSection({ t, isAr }) {
   );
 }
 
-// ─── Contact Section ──────────────────────────────────────────────
-function ContactSection({ t, isAr }) {
+const STORE_NAME = 'Golden Kar';
+const STORE_LAT = 30.054012;
+const STORE_LNG = 31.2419203;
+
+const MAP_EMBED_SRC = `https://www.google.com/maps?q=${STORE_LAT},${STORE_LNG}&z=16&output=embed`;
+const MAP_LINK_URL = `https://www.google.com/maps/dir/?api=1&destination=${STORE_LAT},${STORE_LNG}`;
+
+
+export function ContactMap() {
+  return (
+    <a
+      className="contact-map-card"
+      href={MAP_LINK_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`${STORE_NAME} — open in Google Maps`}
+    >
+      <iframe
+        className="contact-map-iframe"
+        src={MAP_EMBED_SRC}
+        title={`${STORE_NAME} — map location`}
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        tabIndex={-1}
+        aria-hidden="true"
+      />
+    </a>
+  );
+}
+
+export function ContactSection({ t, isAr }) {
   const [form, setForm] = useState({ name: '', phone: '', message: '', part: '' });
   const [submitted, setSubmitted] = useState(false);
 
@@ -827,93 +857,111 @@ function ContactSection({ t, isAr }) {
             <h2 className="display-md">{t('contact.title')}</h2>
           </div>
         </div>
-        <div className="contact-grid">
-          {/* Info */}
-          <div className="contact-info">
-            {[
-              { Icon: MapPin, label: 'store', value: t('contact.location') },
-              { Icon: Phone, label: 'phone', value: t('contact.phone'), href: 'tel:+201111926799' },
-              { Icon: Mail, label: 'email', value: t('contact.email'), href: 'mailto:Hussein.sayed.hassn91@gmail.com' },
-              { Icon: Clock, label: 'hours', value: t('contact.hours') },
-            ].map((item, i) => (
-              <div key={i} className="contact-item">
-                <div className="contact-icon"><item.Icon size={20} /></div>
-                <div>
-                  <div className="contact-item-label">{item.label}</div>
-                  <div className="contact-item-value">
-                    {item.href
-                      ? <a href={item.href} dir="ltr">{item.value}</a>
-                      : item.value
-                    }
-                  </div>
-                </div>
-              </div>
-            ))}
 
-            <div className="contact-socials">
-              <a href="https://wa.me/201111926799" target="_blank" rel="noopener noreferrer" className="social-btn whatsapp">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.7" /></svg>
-                {t('contact.whatsapp')}
-              </a>
-              <a href="https://www.tiktok.com/@husseinsellaboudy" target="_blank" rel="noopener noreferrer" className="social-btn tiktok">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.14 8.14 0 004.77 1.52V6.76a4.85 4.85 0 01-1-.07z" /></svg>
-                TikTok
-              </a>
-              <a href="https://www.instagram.com/golden_car_tunning" target="_blank" rel="noopener noreferrer" className="social-btn instagram">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" /></svg>
-                Instagram
-              </a>
+        {/* We use isAr to force the layout direction correctly */}
+        <div className={`contact-flex-container ${isAr ? 'is-rtl' : ''}`}>
+
+          {/* =========================================
+              LEFT SIDE: The Form
+              ========================================= */}
+          <div className="contact-form-side">
+            <div className="contact-form">
+              {submitted ? (
+                <div className="form-success">
+                  <div className="form-success-icon"><Check size={28} /></div>
+                  <h4 style={{ fontWeight: 700 }}>{isAr ? 'تم التحويل لواتساب!' : 'Redirected to WhatsApp!'}</h4>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-2)', textAlign: 'center' }}>
+                    {isAr ? 'سيتم التواصل معك قريباً.' : 'Our team will respond to you shortly.'}
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit}>
+                  <div className="form-group">
+                    <label className="form-label">{isAr ? 'الاسم' : 'Your Name'} *</label>
+                    <input className="form-input" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder={isAr ? 'اسمك' : 'Ahmed Mohamed'} required />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">{isAr ? 'رقم الهاتف' : 'Phone Number'}</label>
+                    <input className="form-input" value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} placeholder="+20 111 ..." type="tel" />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">{isAr ? 'استفسار عن' : 'Inquiry About'}</label>
+                    <select className="form-input" value={form.part} onChange={e => setForm(p => ({ ...p, part: e.target.value }))}>
+                      <option value="">{isAr ? 'اختر فئة' : 'Select Category'}</option>
+                      <option value="lighting">{isAr ? 'إضاءة LED وليزر' : 'LED & Laser Lighting'}</option>
+                      <option value="screens">{isAr ? 'شاشات أندرويد' : 'Android Screens'}</option>
+                      <option value="seats">{isAr ? 'كراسي وكفرات' : 'Seats & Covers'}</option>
+                      <option value="floormats">{isAr ? 'فرش فاخرة' : 'Luxury Floor Mats'}</option>
+                      <option value="exterior">{isAr ? 'إكسسوارات خارجية' : 'Exterior Styling'}</option>
+                    </select>
+                  </div>
+                  <div className="form-group" style={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                    <label className="form-label">{isAr ? 'الرسالة' : 'Message'} *</label>
+                    <textarea className="form-input" style={{ flexGrow: 1 }} value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} placeholder={isAr ? 'اكتب استفسارك هنا...' : 'Write your inquiry here...'} required />
+                  </div>
+                  <button type="submit" className="form-submit-btn" disabled={!form.name || !form.message}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.7" /></svg>
+                    {isAr ? 'إرسال عبر واتساب' : 'Send via WhatsApp'}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
 
-          {/* Form */}
-          <div className="contact-form">
-            {submitted ? (
-              <div className="form-success">
-                <div className="form-success-icon"><Check size={28} /></div>
-                <h4 style={{ fontWeight: 700 }}>{isAr ? 'تم التحويل لواتساب!' : 'Redirected to WhatsApp!'}</h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-2)', textAlign: 'center' }}>
-                  {isAr ? 'سيتم التواصل معك قريباً.' : 'Our team will respond to you shortly.'}
-                </p>
+          {/* =========================================
+              RIGHT SIDE: Info on top, Map below it
+              ========================================= */}
+          <div className="contact-info-side">
+            <div className="contact-info">
+              {[
+                {
+                  Icon: MapPin,
+                  label: 'store',
+                  value: isAr ? 'جولدن كار ستورز، التوفيقية، القاهرة، مصر' : 'Golden Kar Stores, El Tawfiqiya, Cairo, Egypt',
+                  href: 'https://maps.app.goo.gl/RMd2cam1sXEX1UcZA',
+                  target: '_blank',
+                  rel: 'noopener noreferrer'
+                },
+                { Icon: Phone, label: 'phone', value: t('contact.phone'), href: 'tel:+201111926799' },
+                { Icon: Mail, label: 'email', value: t('contact.email'), href: 'mailto:Hussein.sayed.hassn91@gmail.com' },
+                { Icon: Clock, label: 'hours', value: t('contact.hours') },
+              ].map((item, i) => (
+                <div key={i} className="contact-item">
+                  <div className="contact-icon"><item.Icon size={20} /></div>
+                  <div>
+                    <div className="contact-item-label">{item.label}</div>
+                    <div className="contact-item-value">
+                      {item.href
+                        ? <a href={item.href} dir="ltr" target={item.target} rel={item.rel}>{item.value}</a>
+                        : item.value
+                      }
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <div className="contact-socials">
+                <a href="https://wa.me/201111926799" target="_blank" rel="noopener noreferrer" className="social-btn whatsapp">
+                  {t('contact.whatsapp')}
+                </a>
+                <a href="https://www.tiktok.com/@husseinsellaboudy" target="_blank" rel="noopener noreferrer" className="social-btn tiktok">
+                  TikTok
+                </a>
+                <a href="https://www.instagram.com/golden_car_tunning" target="_blank" rel="noopener noreferrer" className="social-btn instagram">
+                  Instagram
+                </a>
               </div>
-            ) : (
-              <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <label className="form-label">{isAr ? 'الاسم' : 'Your Name'} *</label>
-                  <input className="form-input" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder={isAr ? 'اسمك' : 'Ahmed Mohamed'} required />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">{isAr ? 'رقم الهاتف' : 'Phone Number'}</label>
-                  <input className="form-input" value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} placeholder="+20 111 ..." type="tel" />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">{isAr ? 'استفسار عن' : 'Inquiry About'}</label>
-                  <select className="form-input" value={form.part} onChange={e => setForm(p => ({ ...p, part: e.target.value }))}>
-                    <option value="">{isAr ? 'اختر فئة' : 'Select Category'}</option>
-                    <option value="lighting">{isAr ? 'إضاءة LED وليزر' : 'LED & Laser Lighting'}</option>
-                    <option value="screens">{isAr ? 'شاشات أندرويد' : 'Android Screens'}</option>
-                    <option value="seats">{isAr ? 'كراسي وكفرات' : 'Seats & Covers'}</option>
-                    <option value="floormats">{isAr ? 'فرش فاخرة' : 'Luxury Floor Mats'}</option>
-                    <option value="exterior">{isAr ? 'إكسسوارات خارجية' : 'Exterior Styling'}</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">{isAr ? 'الرسالة' : 'Message'} *</label>
-                  <textarea className="form-input" rows={4} value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} placeholder={isAr ? 'اكتب استفسارك هنا...' : 'Write your inquiry here...'} required />
-                </div>
-                <button type="submit" className="form-submit-btn" disabled={!form.name || !form.message}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.7" /></svg>
-                  {isAr ? 'إرسال عبر واتساب' : 'Send via WhatsApp'}
-                </button>
-              </form>
-            )}
+            </div>
+
+            {/* Map placed directly beneath the info */}
+            <ContactMap />
           </div>
+
         </div>
       </div>
     </section>
   );
 }
-
 // ─── Footer ───────────────────────────────────────────────────────
 function Footer({ t, isAr, setActiveTab, setActiveCategory }) {
   return (
@@ -971,7 +1019,7 @@ function Footer({ t, isAr, setActiveTab, setActiveCategory }) {
           <div className="footer-col-title">{t('footer.contact')}</div>
           <div className="footer-links" style={{ gap: '14px' }}>
             {[
-              { Icon: MapPin, text: t('contact.location'), href: 'https://maps.google.com/?q=Golden+Car+Cairo' },
+              { Icon: MapPin, text: isAr ? 'جولدن كار ستورز، التوفيقية، القاهرة، مصر' : 'Golden Kar Stores, El Tawfiqiya, Cairo, Egypt', href: 'https://maps.app.goo.gl/RMd2cam1sXEX1UcZA', target: '_blank', rel: 'noopener noreferrer' },
               { Icon: Phone, text: isAr ? t('contact.phone') : '+20 111 192 6799' },
               { Icon: Mail, text: 'Hussein.sayed.hassn91@gmail.com' },
               { Icon: Clock, text: t('contact.hours') },
@@ -979,7 +1027,7 @@ function Footer({ t, isAr, setActiveTab, setActiveCategory }) {
               <div key={i} className="footer-contact-item">
                 <item.Icon size={14} className="footer-contact-icon" />
                 {item.href ? (
-                  <a href={item.href} target="_blank" rel="noopener noreferrer">{item.text}</a>
+                  <a href={item.href} target={item.target} rel={item.rel}>{item.text}</a>
                 ) : item.Icon === Phone ? (
                   <a href="tel:+201111926799" dir="ltr">{item.text}</a>
                 ) : item.Icon === Mail ? (
@@ -1551,7 +1599,7 @@ export default function App() {
               </h3>
               <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {[
-                  { Icon: MapPin, color: 'var(--red)', text: t('contact.location') },
+                  { Icon: MapPin, color: 'var(--red)', text: isAr ? 'جولدن كار ستورز، التوفيقية، القاهرة، مصر' : 'Golden Kar Stores, El Tawfiqiya, Cairo, Egypt', href: 'https://maps.app.goo.gl/RMd2cam1sXEX1UcZA', target: '_blank', rel: 'noopener noreferrer' },
                   { Icon: Phone, color: 'var(--yellow)', text: '+20 111 192 6799', href: 'tel:+201111926799' },
                   { Icon: MessageSquare, color: 'var(--green)', text: '+20 111 192 6799 (WhatsApp)', href: 'https://wa.me/201111926799' },
                   { Icon: Mail, color: 'var(--red)', text: 'Hussein.sayed.hassn91@gmail.com', href: 'mailto:Hussein.sayed.hassn91@gmail.com' },
@@ -1560,7 +1608,7 @@ export default function App() {
                     <item.Icon size={18} style={{ color: item.color, flexShrink: 0, marginTop: '2px' }} />
                     <div>
                       {item.href
-                        ? <a href={item.href} target={item.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'var(--text)', fontWeight: 600 }}>{item.text}</a>
+                        ? <a href={item.href} target={item.target} rel={item.rel} style={{ fontSize: '0.85rem', color: 'var(--text)', fontWeight: 600 }}>{item.text}</a>
                         : <span style={{ fontSize: '0.85rem', color: 'var(--text-2)' }}>{item.text}</span>
                       }
                     </div>
