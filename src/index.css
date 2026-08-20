@@ -2140,7 +2140,7 @@ ul {
   font-family: var(--font-display);
 }
 
-.modal-price.has-offer + .modal-price {
+.modal-price.has-offer+.modal-price {
   display: none;
 }
 
