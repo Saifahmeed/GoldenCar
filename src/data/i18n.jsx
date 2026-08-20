@@ -166,7 +166,7 @@ const translations = {
     'contact.phone': '+20 111 192 6799',
     'contact.email': 'Hussein.sayed.hassn91@gmail.com',
     'contact.hours': 'Sat–Thu: 10:00 AM – 10:00 PM',
-    'contact.whatsapp': 'Chat on WhatsApp',
+    'contact.whatsapp': 'WhatsApp',
     'contact.call': 'Call Now',
 
     // Warranty
@@ -427,7 +427,7 @@ const translations = {
     'contact.phone': '+20 111 192 6799',
     'contact.email': 'Hussein.sayed.hassn91@gmail.com',
     'contact.hours': 'السبت–الخميس: ١٠ ص – ١٠ م',
-    'contact.whatsapp': 'تواصل على واتساب',
+    'contact.whatsapp': 'WhatsApp',
     'contact.call': 'اتصل الآن',
 
     // Warranty

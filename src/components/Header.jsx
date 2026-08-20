@@ -69,7 +69,7 @@ export default function Header({
         {/* Logo */}
         <div
           className="header-logo-container"
-          style={{ cursor: 'pointer', marginRight: '40px' }}
+          style={{ cursor: 'pointer' }}
           onClick={() => { setActiveNav('home'); setActiveTab('catalog'); }}
         >
           <Logo height={scrolled ? 34 : 42} />
@@ -92,6 +92,7 @@ export default function Header({
         <div className="header-actions">
           {/* Vehicle Selector */}
           <button
+            type="button"
             className={`garage-status-btn${activeVehicle ? ' active-selected' : ''}`}
             onClick={onGarageClick}
           >

@@ -278,6 +278,7 @@ ul {
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  margin-right: 24px;
   transition: var(--t);
 }
 
@@ -336,18 +337,20 @@ ul {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 14px;
-  background: var(--bg-3);
-  border: 1px solid var(--border);
-  border-radius: 40px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-2);
+  padding: 11px 16px;
+  background: var(--red);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #fff;
   transition: var(--t);
   cursor: pointer;
   white-space: nowrap;
-  max-width: 220px;
+  max-width: 260px;
   overflow: hidden;
+  box-shadow: 0 8px 24px rgba(227, 30, 36, 0.28);
 }
 
 .garage-status-btn span {
@@ -357,14 +360,14 @@ ul {
 }
 
 .garage-status-btn:hover {
-  border-color: var(--border-strong);
-  color: var(--text);
+  background: var(--red-light);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(227, 30, 36, 0.38);
 }
 
 .garage-status-btn.active-selected {
-  border-color: var(--border-red);
-  color: var(--red);
-  background: var(--red-glow);
+  background: var(--red);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 10px 28px rgba(227, 30, 36, 0.34);
 }
 
 .action-btn {
@@ -557,11 +560,11 @@ ul {
 .hero-bg {
   position: absolute;
   inset: 0;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url('/img/hero_banner.jpg');
+  /* Note: 'inset: 0' automatically handles top, left, right, and bottom! */
+
+  /* Add the black overlay here using rgba. 0.7 represents 70% darkness. */
+  background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.7)), url('/img/hero_banner.jpg');
+
   background-size: cover;
   background-position: center;
   z-index: 0;
@@ -579,16 +582,17 @@ ul {
 
 .hero-brand-mark {
   position: absolute;
-  top: 38%;
-  right: 14%;
+  top: 34%;
+  right: 10%;
   z-index: 2;
-  padding: 30px 42px;
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.32);
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  filter: none;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 16px;
 }
 
 .hero-brand-mark img {
@@ -597,7 +601,7 @@ ul {
 
 [dir="rtl"] .hero-brand-mark {
   right: auto;
-  left: 14%;
+  left: 10%;
 }
 
 [dir="rtl"] .hero-bg::after {
@@ -609,15 +613,23 @@ ul {
   z-index: 2;
   max-width: var(--container);
   margin: 0 auto;
-  padding: 10px 24px;
+  padding: 24px 24px 10px;
   display: grid;
-  grid-template-columns: 1fr 400px;
-  gap: 60px;
+  grid-template-columns: 1fr;
+  gap: 0;
   align-items: center;
+  justify-items: center;
   width: 100%;
 }
 
-.hero-left {}
+.hero-left {
+  width: 100%;
+  max-width: 920px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
 
 .hero-badge {
   display: inline-flex;
@@ -633,6 +645,18 @@ ul {
   text-transform: uppercase;
   color: var(--red);
   margin-bottom: 28px;
+}
+
+.hero-logo-stack {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.hero-logo-stack img {
+  height: 140px !important;
+  width: auto;
 }
 
 .hero-badge-dot {
@@ -699,8 +723,8 @@ ul {
   font-size: clamp(1rem, 2vw, 1.1rem);
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.85);
-  max-width: 480px;
-  margin-bottom: 40px;
+  max-width: 760px;
+  margin-bottom: 34px;
 }
 
 .hero-actions {
@@ -708,6 +732,7 @@ ul {
   flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 56px;
+  justify-content: center;
 }
 
 /* Primary CTA Button */
@@ -881,6 +906,7 @@ ul {
   display: flex;
   gap: 40px;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .hero-brand-strip {
@@ -1025,6 +1051,11 @@ ul {
 .hero-right {
   display: flex;
   flex-direction: column;
+}
+
+.hero-right,
+.hero-brand-mark {
+  display: none;
 }
 
 .ymm-box {
@@ -4759,7 +4790,7 @@ select.form-input {
     padding: 16px;
   }
 
-  .admin-product-row > :first-child {
+  .admin-product-row> :first-child {
     flex: 1 1 100%;
     min-width: 0;
   }
@@ -4873,7 +4904,7 @@ select.form-input {
     padding: 14px 16px;
   }
 
-  .admin-product-row > :first-child {
+  .admin-product-row> :first-child {
     grid-column: 1 / -1;
     min-width: 0;
   }
@@ -5106,14 +5137,16 @@ select.form-input {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin: 18px auto 0;
-  padding: 13px 22px;
-  border: 1px solid var(--red);
-  border-radius: 999px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  border: none;
+  border-radius: var(--radius);
   background: var(--red);
   color: #fff;
   font-size: 0.84rem;
-  font-weight: 800;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   box-shadow: 0 10px 28px rgba(227, 30, 36, 0.28);
   transition: var(--t);
 }
@@ -5121,4 +5154,12 @@ select.form-input {
 .hero-vehicle-cta:hover {
   background: var(--red-light);
   transform: translateY(-2px);
+}
+
+.hero-actions .btn-outline.hero-outline-ready,
+.hero-actions .btn-outline.hero-outline-ready:hover {
+  border-color: var(--red);
+  color: var(--red);
+  background: var(--red-glow);
+  box-shadow: inset 0 0 0 1px rgba(227, 30, 36, 0.14);
 }

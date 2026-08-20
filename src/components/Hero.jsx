@@ -140,17 +140,9 @@ export default function Hero({ onSelectVehicle, onGarageClick, activeVehicle }) 
   return (
     <section className="hero-section" id="hero">
       <div className="hero-bg" />
-      <div className="hero-brand-mark" aria-label="Golden Car Stores">
-        <Logo height={52} />
-        <button type="button" className="hero-vehicle-cta" onClick={onGarageClick}>
-          <Car size={18} />
-          {isAr ? 'اختار عربيتك' : 'Choose Your Car'}
-          <ChevronRight size={16} />
-        </button>
-      </div>
 
       <div className="hero-content">
-        {/* Left — Headline & CTAs */}
+        {/* Centered hero stack */}
         <div className="hero-left animate-fade-in">
           {/* Badge */}
           <div className="hero-badge">
@@ -158,32 +150,8 @@ export default function Hero({ onSelectVehicle, onGarageClick, activeVehicle }) 
             {t('hero.badge')}
           </div>
 
-          {/* Headline */}
-          {isAr ? (
-            <h1 className="hero-headline" style={{ fontFamily: 'var(--font-arabic)', fontWeight: 900, fontSize: 'clamp(2.5rem, 8vw, 6rem)', lineHeight: 1.1 }}>
-              <span>{t('hero.headline1')} </span>
-              <span className="red">{t('hero.headline2')}</span>
-              <br />
-              <span className="outline">{t('hero.headline3')}</span>
-            </h1>
-          ) : (
-            <h1 className="hero-headline">
-              {t('hero.headline1')}<br />
-              <span className="outline">{t('hero.headline2')}</span><br />
-              <span style={{ color: '#fff' }}>{t('hero.headline3')}</span>
-            </h1>
-          )}
-
-          {/* Tagline */}
-          <div className="hero-tagline">
-            {isAr
-              ? t('hero.tagline')
-              : (
-                <>
-                  Everything your car needs —&nbsp;
-                  <span className="accent">under one roof</span>
-                </>
-              )}
+          <div className="hero-logo-stack" aria-label="Golden Car Stores">
+            <Logo height={140} />
           </div>
 
           {/* Description */}
@@ -194,9 +162,9 @@ export default function Hero({ onSelectVehicle, onGarageClick, activeVehicle }) 
             <a href="#shop-catalog-anchor" className="btn-primary">
               {t('hero.cta.shop')} <ArrowRight size={16} />
             </a>
-            <a href="#categories" className="btn-outline">
-              {t('hero.cta.build')} <ChevronRight size={16} />
-            </a>
+            <button type="button" className="btn-outline hero-outline-ready" onClick={onGarageClick}>
+              {isAr ? 'اختر عربيتك' : 'Choose Your Car'} <ChevronRight size={16} />
+            </button>
           </div>
 
           {/* Stats */}
