@@ -218,7 +218,7 @@ ul {
 }
 
 .section-wrapper {
-  padding: 80px 24px;
+  padding: 30px 24px;
   max-width: var(--container);
   margin: 0 auto;
 }
@@ -826,7 +826,7 @@ ul {
   background: var(--bg-2);
 }
 
-.private-tools-bar > span {
+.private-tools-bar>span {
   margin-right: 8px;
   color: var(--text-3);
   font-size: 0.7rem;
@@ -1371,10 +1371,10 @@ ul {
 /* ============================================================
    BRANDS SECTION
    ============================================================ */
-.brands-section {
-  padding: 80px 0;
+/* .brands-section {
+  padding: 0px 0;
   background: var(--bg-2);
-}
+} */
 
 .brands-stack {
   display: grid;
@@ -1725,7 +1725,7 @@ ul {
 }
 
 .product-offer-strip {
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
@@ -1921,6 +1921,30 @@ ul {
   color: var(--text);
 }
 
+.product-price.has-offer,
+.modal-price.has-offer {
+  display: inline-flex;
+  direction: ltr;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 9px;
+  white-space: nowrap;
+}
+
+.price-current {
+  font-family: var(--font-display);
+  color: var(--text);
+}
+
+.price-old {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-3);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+
 .product-price .currency {
   font-family: var(--font-body);
   font-size: 0.7rem;
@@ -2001,8 +2025,24 @@ ul {
   max-width: 800px;
   max-height: 90vh;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--red) transparent;
   transform: translateY(20px) scale(0.97);
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-box::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-box::-webkit-scrollbar-track {
+  background: transparent;
+  margin-block: 16px;
+}
+
+.modal-box::-webkit-scrollbar-thumb {
+  background: var(--red);
+  border-radius: 999px;
 }
 
 .modal-overlay.open .modal-box {
@@ -2091,6 +2131,21 @@ ul {
   font-family: var(--font-display);
   font-size: 1.8rem;
   color: var(--text);
+}
+
+[dir="rtl"] .product-price,
+[dir="rtl"] .modal-price,
+[dir="rtl"] .price-current,
+[dir="rtl"] .hero-stat-num {
+  font-family: var(--font-display);
+}
+
+.modal-price.has-offer + .modal-price {
+  display: none;
+}
+
+.modal-price .price-old {
+  font-size: 0.95rem;
 }
 
 .modal-price .currency {
@@ -2478,7 +2533,7 @@ ul {
    CONTACT SECTION
    ============================================================ */
 .contact-section {
-  padding: 80px 0;
+  padding: 40px 0;
   background: var(--bg-2);
 }
 
@@ -3215,7 +3270,9 @@ select.form-input {
   text-transform: uppercase;
 }
 
-.about-story p { margin: 0; }
+.about-story p {
+  margin: 0;
+}
 
 .about-stats {
   display: grid;
@@ -3311,7 +3368,9 @@ select.form-input {
   transition: transform 0.5s ease;
 }
 
-.offer-card:hover .offer-card-image img { transform: scale(1.06); }
+.offer-card:hover .offer-card-image img {
+  transform: scale(1.06);
+}
 
 .offer-card-image span {
   position: absolute;
@@ -4560,8 +4619,13 @@ select.form-input {
 }
 
 @keyframes tiktok-marquee {
-  from { transform: translateX(-50%); }
-  to { transform: translateX(0); }
+  from {
+    transform: translateX(-50%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
 }
 
 .tiktok-video-card {
@@ -4596,7 +4660,9 @@ select.form-input {
   transition: transform 0.5s ease;
 }
 
-.tiktok-video-card:hover img { transform: scale(1.06); }
+.tiktok-video-card:hover img {
+  transform: scale(1.06);
+}
 
 .tiktok-video-shade {
   z-index: 1;
@@ -4617,7 +4683,9 @@ select.form-input {
   color: #fff;
 }
 
-.tiktok-play svg { margin-left: 2px; }
+.tiktok-play svg {
+  margin-left: 2px;
+}
 
 .tiktok-video-copy {
   position: absolute;
@@ -4650,5 +4718,8 @@ select.form-input {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tiktok-marquee-track { animation: none; transform: none; }
+  .tiktok-marquee-track {
+    animation: none;
+    transform: none;
+  }
 }

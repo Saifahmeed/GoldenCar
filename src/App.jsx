@@ -115,6 +115,25 @@ function Stars({ rating }) {
 }
 
 // ─── Product Card ────────────────────────────────────────────────
+function ProductPrice({ product, isAr, className = 'product-price' }) {
+  const currency = isAr ? '\u062c.\u0645' : 'EGP';
+
+  return (
+    <div className={`${className}${product.offer ? ' has-offer' : ''}`}>
+      <span className="price-current">
+        <span className="currency">{currency} </span>
+        {product.price.toLocaleString()}
+      </span>
+      {product.offer && (
+        <del className="price-old">
+          <span className="currency">{currency} </span>
+          {product.offer.oldPrice.toLocaleString()}
+        </del>
+      )}
+    </div>
+  );
+}
+
 function ProductCard({ product, activeVehicle, onClick, onAddToCart, isAr, t }) {
   const imgMap = {
     'brakes.jpg': '/img/brakes.jpg',
@@ -169,6 +188,7 @@ function ProductCard({ product, activeVehicle, onClick, onAddToCart, isAr, t }) 
             <Stars rating={product.rating} />
             <span>({product.reviewsCount})</span>
           </div>
+          {product.offer && <ProductPrice product={product} isAr={isAr} />}
           {!product.offer && <div className="product-price">
             <span className="currency">{isAr ? 'ج.م' : 'EGP'} </span>
             {product.price.toLocaleString()}
@@ -222,7 +242,7 @@ function ProductModal({ product, isOpen, onClose, activeVehicle, onAddToCart, is
 
   return (
     <div className={`modal-overlay${isOpen ? ' open' : ''}`} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="modal-box">
+      <div className="modal-box" style={{ borderRadius: '16px' }}> {/* Adjust '16px' to your liking */}
         <div className="modal-header">
           <div>
             <div style={{ fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: '3px' }}>
@@ -266,6 +286,7 @@ function ProductModal({ product, isOpen, onClose, activeVehicle, onAddToCart, is
             <div className="modal-name">{displayName}</div>
 
             <div className="modal-price-row">
+              {product.offer && <ProductPrice product={product} isAr={isAr} className="modal-price" />}
               <div className="modal-price">
                 {product.price.toLocaleString()} <span className="currency">{isAr ? 'ج.م' : 'EGP'}</span>
               </div>

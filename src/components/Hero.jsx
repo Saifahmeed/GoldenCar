@@ -199,7 +199,7 @@ export default function Hero({ onSelectVehicle, activeVehicle }) {
         </div>
 
         {/* Right — Vehicle Selector */}
-        <div className="hero-right animate-slide-up" style={{ animationDelay: '0.15s' }}>
+        <div className="hero-right animate-slide-up" style={{ animationDelay: '0.15s', display: 'none' }}>
           <div className="ymm-box">
             <div className="ymm-title">
               <Car size={18} />

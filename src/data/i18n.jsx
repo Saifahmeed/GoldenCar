@@ -322,7 +322,7 @@ const translations = {
     // Brands Section
     'brands.title': 'الأفضل في السوق',
     'brands.eyebrow': 'ماركات نثق بها',
-    'brands.desc': 'كل ماركة بنبيعها اتاختارت بدقة على مدار عقود. منتجات أصلية وضمان حقيقي.',
+    'brands.desc': 'كل ماركة بنبيعها اختارت بدقة على مدار عقود. منتجات أصلية وضمان حقيقي.',
     'brands.lens': 'عدسات وليزر',
     'brands.led': 'إضاءة LED',
     'brands.screens': 'شاشات أندرويد',
@@ -522,7 +522,7 @@ const translations = {
 
 export const LanguageContext = createContext({
   lang: 'ar',
-  setLang: () => {},
+  setLang: () => { },
   t: (key) => key,
   isAr: true,
 });
