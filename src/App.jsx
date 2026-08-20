@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Wrench, ShieldCheck, HelpCircle, Car, Check, ArrowRight,
+  HelpCircle, Car, Check, ArrowRight,
   SlidersHorizontal, Mail, Phone, MapPin, Clock, MessageSquare,
-  ChevronDown, ShoppingBag, X, Star, Plus, Minus, Moon, Sun
+  ChevronDown, ChevronLeft, ChevronRight, ShoppingBag, X, Star, Plus, Minus, Moon, Sun
 } from 'lucide-react';
 
 import { productsData, categoriesData, brandsData, vehiclesData } from './data/catalog';
@@ -12,6 +12,7 @@ import { seedDashboardData } from './data/dashboardData';
 
 import Header from './components/Header';
 import Hero from './components/Hero';
+import TikTokShowcase from './components/TikTokShowcase';
 import Logo from './components/Logo';
 import Dashboard from './components/Dashboard';
 import AdminPanel from './components/AdminPanel';
@@ -75,19 +76,28 @@ function ProductCard({ product, activeVehicle, onClick, onAddToCart, isAr, t }) 
             {isCompatible ? t('product.compatible') : t('product.notCompatible')}
           </span>
         )}
+        {product.offer && <span className="product-offer-badge">-{product.offer.discount}% OFF</span>}
       </div>
       <div className="product-body">
         <div className="product-brand">{product.brand}</div>
+        {product.offer && (
+          <div className="product-offer-strip">
+            <span>{isAr ? 'عرض خاص' : 'SPECIAL OFFER'}</span>
+            <del>{product.offer.oldPrice.toLocaleString()} {isAr ? 'ج.م' : 'EGP'}</del>
+            <strong>{product.price.toLocaleString()} {isAr ? 'ج.م' : 'EGP'}</strong>
+            <small>{isAr ? `لمدة ${product.offer.duration} أيام` : `${product.offer.duration} days only`}</small>
+          </div>
+        )}
         <div className="product-name">{displayName}</div>
         <div className="product-meta">
           <div className="product-rating">
             <Stars rating={product.rating} />
             <span>({product.reviewsCount})</span>
           </div>
-          <div className="product-price">
+          {!product.offer && <div className="product-price">
             <span className="currency">{isAr ? 'ج.م' : 'EGP'} </span>
             {product.price.toLocaleString()}
-          </div>
+          </div>}
         </div>
         <div className="product-actions" onClick={e => e.stopPropagation()}>
           <button
@@ -578,6 +588,83 @@ function WorkshopSection({ t, isAr }) {
   );
 }
 
+// ─── About Page ──────────────────────────────────────────────────
+function AboutSection({ t, isAr }) {
+  return (
+    <main className="about-page section-wrapper animate-fade-in" dir={isAr ? 'rtl' : 'ltr'}>
+      <div className="about-hero">
+        <div className="about-hero-copy">
+          <div className="eyebrow">{t('about.eyebrow')}</div>
+          <h1 className="display-md">{t('about.title')}</h1>
+          <p>{t('about.desc')}</p>
+          <a
+            href="https://wa.me/201111926799"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-primary about-cta"
+          >
+            {t('about.cta')} <ArrowRight size={16} />
+          </a>
+        </div>
+        <div className="about-hero-image">
+          <img src="/img/hussien-sayed.jpg" alt="Golden Car workshop" />
+          <div className="about-image-caption">GOLDEN CAR / CAIRO / 1990</div>
+        </div>
+      </div>
+
+      <div className="about-story">
+        <div>
+          <div className="eyebrow">GOLDEN AUTOMOTIVE</div>
+          <h2>{t('about.story')}</h2>
+        </div>
+        <p>{t('about.story.desc')}</p>
+      </div>
+
+      <div className="about-stats">
+        <div><strong>35+</strong><span>{t('about.years')}</span></div>
+        <div><strong>14K+</strong><span>{t('about.cars')}</span></div>
+        <div><strong>40+</strong><span>{t('about.brands')}</span></div>
+      </div>
+    </main>
+  );
+}
+
+// ─── Offers Page ─────────────────────────────────────────────────
+function OffersSection({ t, isAr }) {
+  const offers = [
+    { image: 'brakes.jpg', title: 'offers.package1', desc: 'offers.package1.desc' },
+    { image: 'intercooler.jpg', title: 'offers.package2', desc: 'offers.package2.desc' },
+    { image: 'exhaust.jpg', title: 'offers.package3', desc: 'offers.package3.desc' },
+  ];
+
+  return (
+    <main className="offers-page section-wrapper animate-fade-in" dir={isAr ? 'rtl' : 'ltr'}>
+      <div className="offers-page-header">
+        <div className="eyebrow">{t('offers.eyebrow')}</div>
+        <h1 className="display-md">{t('offers.title')}</h1>
+        <p>{t('offers.desc')}</p>
+      </div>
+      <div className="offers-grid">
+        {offers.map(offer => (
+          <article className="offer-card" key={offer.title}>
+            <div className="offer-card-image">
+              <img src={`/img/${offer.image}`} alt="" />
+              <span>GOLDEN OFFER</span>
+            </div>
+            <div className="offer-card-body">
+              <h2>{t(offer.title)}</h2>
+              <p>{t(offer.desc)}</p>
+              <a href="https://wa.me/201111926799" target="_blank" rel="noopener noreferrer">
+                {t('offers.cta')} <ArrowRight size={15} />
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </main>
+  );
+}
+
 // ─── Brands Section ───────────────────────────────────────────────
 function BrandsSection({ t, isAr }) {
   return (
@@ -765,11 +852,10 @@ function Footer({ t, isAr, setActiveTab }) {
           </div>
         </div>
 
-        {/* Warranty Links */}
+        {/* Support Links */}
         <div>
-          <div className="footer-col-title">{t('footer.warranty')}</div>
+          <div className="footer-col-title">{t('nav.support')}</div>
           <div className="footer-links">
-            <span className="footer-link-item" onClick={() => setActiveTab('warranty')}>{t('nav.warranty')}</span>
             <span className="footer-link-item" onClick={() => setActiveTab('support')}>{t('nav.support')}</span>
           </div>
         </div>
@@ -819,6 +905,7 @@ export default function App() {
   const [filterCompatibleOnly, setFilterCompatibleOnly] = useState(false);
   const [priceLimit, setPriceLimit] = useState(20000);
   const [selectedBrands, setSelectedBrands] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [garageList, setGarageList] = useState([
     { make: 'Toyota', model: 'Corolla', year: '2022', engine: '1.6L Active CVT (120 HP)' }
@@ -839,7 +926,17 @@ export default function App() {
 
   // Reload custom when switching to catalog
   useEffect(() => {
-    if (activeTab === 'catalog') setCustomProducts(loadCustomProducts());
+    if (activeTab === 'catalog' || activeTab === 'offers') setCustomProducts(loadCustomProducts());
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab !== 'offers') return;
+    setSearchQuery('');
+    setActiveCategory('all');
+    setSelectedBrands([]);
+    setFilterCompatibleOnly(false);
+    setPriceLimit(20000);
+    setCurrentPage(1);
   }, [activeTab]);
 
   const allProducts = [...productsData, ...customProducts];
@@ -892,6 +989,7 @@ export default function App() {
   const brandsList = Array.from(new Set(allProducts.map(p => p.brand)));
 
   const filteredProducts = allProducts.filter(p => {
+    if (activeTab === 'offers' && !p.offer) return false;
     if (activeCategory !== 'all' && p.category !== activeCategory) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -904,6 +1002,21 @@ export default function App() {
     }
     return true;
   });
+
+  const productsPerPage = 9;
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / productsPerPage));
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * productsPerPage,
+    currentPage * productsPerPage
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory, searchQuery, priceLimit, selectedBrands, filterCompatibleOnly, activeVehicle, activeTab]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [currentPage, totalPages]);
 
   const cartTotalQty = cartList.reduce((s, i) => s + i.quantity, 0);
 
@@ -933,26 +1046,9 @@ export default function App() {
       />
 
       {/* ═══ CATALOG PAGE ══════════════════════════════════════════ */}
-      {activeTab === 'catalog' && (
+      {(activeTab === 'catalog' || activeTab === 'offers') && (
         <>
           <Hero onSelectVehicle={handleAddVehicle} activeVehicle={activeVehicle} />
-
-          {/* Trust Banner */}
-          <div className="trust-banner">
-            {[
-              { Icon: ShieldCheck, titleKey: 'trust.quality', subKey: 'trust.quality.sub' },
-              { Icon: Wrench, titleKey: 'trust.install', subKey: 'trust.install.sub' },
-              { Icon: Clock, titleKey: 'trust.tiktok', subKey: 'trust.tiktok.sub' },
-            ].map((item, i) => (
-              <div key={i} className="trust-item">
-                <div className="trust-icon"><item.Icon size={20} /></div>
-                <div className="trust-text">
-                  <h4>{t(item.titleKey)}</h4>
-                  <p>{t(item.subKey)}</p>
-                </div>
-              </div>
-            ))}
-          </div>
 
           {/* Marquee */}
           <div className="marquee-section">
@@ -976,6 +1072,8 @@ export default function App() {
               ))}
             </div>
           </div>
+
+          <TikTokShowcase isAr={isAr} />
 
           {/* Categories + Catalog */}
           <section className="section-wrapper" id="categories">
@@ -1131,7 +1229,7 @@ export default function App() {
                     </div>
                     {(searchQuery || activeCategory !== 'all' || selectedBrands.length || filterCompatibleOnly || priceLimit < 20000) && (
                       <button className="reset-filters-btn" onClick={() => {
-                        setSearchQuery(''); setActiveCategory('all');
+                        setActiveTab('catalog'); setSearchQuery(''); setActiveCategory('all');
                         setSelectedBrands([]); setFilterCompatibleOnly(false); setPriceLimit(20000);
                       }}>
                         {t('catalog.resetFilters')}
@@ -1146,19 +1244,51 @@ export default function App() {
                       <p>{t('catalog.noResults.sub')}</p>
                     </div>
                   ) : (
-                    <div className="products-grid">
-                      {filteredProducts.map(product => (
-                        <ProductCard
-                          key={product.id}
-                          product={product}
-                          activeVehicle={activeVehicle}
-                          onClick={() => setSelectedProduct(product)}
-                          onAddToCart={handleAddToCart}
-                          isAr={isAr}
-                          t={t}
-                        />
-                      ))}
-                    </div>
+                    <>
+                      <div className="products-grid">
+                        {paginatedProducts.map(product => (
+                          <ProductCard
+                            key={product.id}
+                            product={product}
+                            activeVehicle={activeVehicle}
+                            onClick={() => setSelectedProduct(product)}
+                            onAddToCart={handleAddToCart}
+                            isAr={isAr}
+                            t={t}
+                          />
+                        ))}
+                      </div>
+                      {totalPages > 1 && (
+                        <nav className="catalog-pagination" aria-label={isAr ? 'صفحات المنتجات' : 'Product pages'}>
+                          <button
+                            className="pagination-arrow"
+                            onClick={() => setCurrentPage(page => Math.max(1, page - 1))}
+                            disabled={currentPage === 1}
+                            aria-label={isAr ? 'الصفحة السابقة' : 'Previous page'}
+                          >
+                            <ChevronLeft size={16} />
+                          </button>
+                          {Array.from({ length: totalPages }, (_, index) => index + 1).map(page => (
+                            <button
+                              key={page}
+                              className={`pagination-number${currentPage === page ? ' active' : ''}`}
+                              onClick={() => setCurrentPage(page)}
+                              aria-current={currentPage === page ? 'page' : undefined}
+                            >
+                              {page}
+                            </button>
+                          ))}
+                          <button
+                            className="pagination-arrow"
+                            onClick={() => setCurrentPage(page => Math.min(totalPages, page + 1))}
+                            disabled={currentPage === totalPages}
+                            aria-label={isAr ? 'الصفحة التالية' : 'Next page'}
+                          >
+                            <ChevronRight size={16} />
+                          </button>
+                        </nav>
+                      )}
+                    </>
                   )}
                 </main>
               </div>
@@ -1172,44 +1302,8 @@ export default function App() {
         </>
       )}
 
-      {/* ═══ WARRANTY PAGE ════════════════════════════════════════ */}
-      {activeTab === 'warranty' && (
-        <div className="section-wrapper animate-fade-in" style={{ marginTop: 'var(--header-h)' }}>
-          <div style={{ textAlign: 'center', maxWidth: '680px', margin: '0 auto 56px' }}>
-            <div className="eyebrow" style={{ justifyContent: 'center' }}>{t('warranty.eyebrow')}</div>
-            <h2 className="display-md" style={{ marginBottom: '16px' }}>{t('warranty.title')}</h2>
-            <p style={{ color: 'var(--text-2)', fontSize: '0.95rem', lineHeight: 1.7 }}>{t('warranty.desc')}</p>
-          </div>
-
-          <div className="warranty-grid">
-            {[
-              { Icon: ShieldCheck, colorClass: 'red', titleKey: 'warranty.track', descKey: 'warranty.track.desc' },
-              { Icon: Wrench, colorClass: 'yellow', titleKey: 'warranty.fit', descKey: 'warranty.fit.desc' },
-              { Icon: Check, colorClass: 'green', titleKey: 'warranty.return', descKey: 'warranty.return.desc' },
-            ].map((card, i) => (
-              <div key={i} className="warranty-card">
-                <div className={`warranty-card-icon ${card.colorClass}`}>
-                  <card.Icon size={24} />
-                </div>
-                <h4>{t(card.titleKey)}</h4>
-                <p>{t(card.descKey)}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="warranty-cta-box">
-            <div>
-              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', marginBottom: '8px' }}>
-                {t('warranty.claim')}
-              </h3>
-              <p style={{ color: 'var(--text-2)', fontSize: '0.9rem' }}>{t('warranty.claim.sub')}</p>
-            </div>
-            <button className="btn-primary" onClick={() => setActiveTab('support')}>
-              {t('warranty.cta')} <ArrowRight size={16} />
-            </button>
-          </div>
-        </div>
-      )}
+      {/* ═══ ABOUT PAGE ═══════════════════════════════════════════ */}
+      {activeTab === 'about' && <AboutSection t={t} isAr={isAr} />}
 
       {/* ═══ SUPPORT PAGE ════════════════════════════════════════ */}
       {activeTab === 'support' && (
@@ -1311,6 +1405,7 @@ export default function App() {
               )}
             </div>
           </div>
+
         </div>
       )}
 
@@ -1320,8 +1415,8 @@ export default function App() {
       {/* ═══ ADMIN PAGE ══════════════════════════════════════════ */}
       {activeTab === 'admin' && <AdminPanel />}
 
-      {/* ─── Footer (show on catalog, warranty, support) ─── */}
-      {['catalog', 'warranty', 'support'].includes(activeTab) && (
+      {/* ─── Footer (show on catalog, about, and support) ─── */}
+      {['catalog', 'about', 'offers', 'support'].includes(activeTab) && (
         <Footer t={t} isAr={isAr} setActiveTab={setActiveTab} />
       )}
 

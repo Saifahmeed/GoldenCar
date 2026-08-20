@@ -16,6 +16,7 @@ export default function Header({
 }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeNav, setActiveNav] = useState('home');
   const { t, lang, setLang, isAr } = useLanguage();
 
   useEffect(() => {
@@ -36,12 +37,32 @@ export default function Header({
   }, [mobileOpen]);
 
   const navItems = [
-    { id: 'catalog', label: t('nav.catalog') },
-    { id: 'warranty', label: t('nav.warranty') },
-    { id: 'support', label: t('nav.support') },
+    { id: 'home', tab: 'catalog', label: t('nav.home') },
+    { id: 'products', tab: 'catalog', label: t('nav.products') },
+    { id: 'offers', tab: 'offers', label: t('nav.offers') },
+    { id: 'about', tab: 'about', label: t('nav.about') },
+    { id: 'support', tab: 'support', label: t('nav.support') },
+    { id: 'contact', tab: 'catalog', label: t('nav.contact') },
     { id: 'dashboard', label: t('nav.dashboard') },
     { id: 'admin', label: t('nav.admin') },
   ];
+
+  const handleNavClick = (item) => {
+    setActiveNav(item.id);
+    setActiveTab(item.tab || item.id);
+    if (item.id === 'home') {
+      window.setTimeout(() => document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' }), 0);
+    }
+    if (item.id === 'products') {
+      window.setTimeout(() => document.getElementById('shop-catalog-anchor')?.scrollIntoView({ behavior: 'smooth' }), 0);
+    }
+    if (item.id === 'offers') {
+      window.setTimeout(() => document.getElementById('shop-catalog-anchor')?.scrollIntoView({ behavior: 'smooth' }), 50);
+    }
+    if (item.id === 'contact') {
+      window.setTimeout(() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }), 50);
+    }
+  };
 
   return (
     <>
@@ -50,7 +71,7 @@ export default function Header({
         <div
           className="header-logo-container"
           style={{ cursor: 'pointer', marginRight: '40px' }}
-          onClick={() => setActiveTab('catalog')}
+          onClick={() => { setActiveNav('home'); setActiveTab('catalog'); }}
         >
           <Logo height={scrolled ? 34 : 42} />
         </div>
@@ -60,8 +81,8 @@ export default function Header({
           {navItems.map(item => (
             <span
               key={item.id}
-              className={`nav-item${activeTab === item.id ? ' active' : ''}`}
-              onClick={() => setActiveTab(item.id)}
+              className={`nav-item${activeNav === item.id ? ' active' : ''}`}
+              onClick={() => handleNavClick(item)}
             >
               {item.label}
             </span>
@@ -161,8 +182,8 @@ export default function Header({
           {navItems.map(item => (
             <button
               key={item.id}
-              className={`mobile-nav-item${activeTab === item.id ? ' active' : ''}`}
-              onClick={() => setActiveTab(item.id)}
+              className={`mobile-nav-item${activeNav === item.id ? ' active' : ''}`}
+              onClick={() => handleNavClick(item)}
             >
               {item.label}
             </button>

@@ -318,15 +318,6 @@ export default function Hero({ onSelectVehicle, activeVehicle }) {
           </div>
         </div>
       </div>
-
-      {/* Full-width logo ticker — deliberately a direct child of .hero-section,
-          NOT nested inside .hero-content/.hero-left. Those are width-constrained
-          by var(--container), so `left:50%; margin-left:-50vw` full-bleed math
-          done from inside them resolves against the wrong (narrower) parent
-          width and ends up offset/clipped. .hero-section itself is genuinely
-          full viewport width (the hero background already proves that), so
-          the marquee can just use width:100% here — no vw math needed. */}
-      <BrandMarquee />
     </section>
   );
 }
