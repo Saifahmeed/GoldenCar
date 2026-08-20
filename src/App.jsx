@@ -893,6 +893,7 @@ export function ContactSection({ t, isAr }) {
                       <option value="seats">{isAr ? 'كراسي وكفرات' : 'Seats & Covers'}</option>
                       <option value="floormats">{isAr ? 'فرش فاخرة' : 'Luxury Floor Mats'}</option>
                       <option value="exterior">{isAr ? 'إكسسوارات خارجية' : 'Exterior Styling'}</option>
+                      <option value="others">{isAr ? 'أخرى' : 'Others'}</option>
                     </select>
                   </div>
                   <div className="form-group" style={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -1653,6 +1654,7 @@ export default function App() {
                       <option value="seats">{isAr ? 'كراسي جلد مخصصة' : 'GOLDEN Custom Leather Seats'}</option>
                       <option value="floormats">{isAr ? 'فرش 7D فاخرة' : 'GOLDEN 7D Luxury Floor Mats'}</option>
                       <option value="exterior">{isAr ? 'سبويلر / غطاء مرايا' : 'GOLDEN Trunk Spoiler / Mirror Cover'}</option>
+                      <option value="others">{isAr ? 'أخرى' : 'Others'}</option>
                     </select>
                   </div>
                   <div className="form-group">
