@@ -26,3 +26,10 @@ dist-ssr
 # Large 3D Models
 bmw_m3_competition_g80.glb
 public/bmw_m3_competition_g80.glb
+
+# Local Environment Variables
+.env
+.env.local
+.env.development
+.env.production
+

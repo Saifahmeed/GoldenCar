@@ -14,6 +14,7 @@ import {
   Smartphone
 } from 'lucide-react';
 import { imageMap, getProductImageStyle } from './ProductCard';
+import PaymentSimulator from './PaymentSimulator';
 
 // Local translations for checkout page to keep code self-contained and clean
 const checkoutTranslations = {
@@ -32,8 +33,8 @@ const checkoutTranslations = {
     payType: 'How would you like to pay?',
     cod: 'Cash on Delivery (COD)',
     codDesc: 'Pay in cash upon delivery to your doorstep',
-    payNow: 'Pay Now (Electronic Transfer)',
-    payNowDesc: 'Instantly pay via Vodafone Cash or InstaPay',
+    payNow: 'Secure Online Payment (Auto Confirmation)',
+    payNowDesc: 'Pay instantly via InstaPay or Mobile Wallets with auto-activation',
     payAmtOption: 'Payment Amount Option',
     payFull: 'Pay Full Amount',
     payFullDesc: 'Pay 100% of the total amount now',
@@ -42,11 +43,11 @@ const checkoutTranslations = {
     depositLabel: 'Deposit Percentage',
     minDepositWarning: 'Deposit must be at least 25% of the total value',
     offerRestriction: 'Offer items in cart must be paid in full (Deposit disabled)',
-    payMethod: 'Select Payment Channel',
-    instapay: 'InstaPay Transfer',
-    instapayDesc: 'Transfer via InstaPay network instantly',
-    vfCash: 'Vodafone Cash',
-    vfCashDesc: 'Transfer to our Vodafone Cash wallet',
+    payMethod: 'Select Secure Payment Channel',
+    instapay: 'InstaPay IPN Network',
+    instapayDesc: 'Instant bank transfer using IPA or dynamic QR Code',
+    vfCash: 'Vodafone Cash & Mobile Wallets',
+    vfCashDesc: 'Pay instantly via Vodafone Cash, Orange, Etisalat, or Meeza',
     transferInstructions: 'Transfer Instructions',
     instapayInstructions: 'Please transfer the required amount to our InstaPay address:',
     vfInstructions: 'Please transfer the required amount to our Vodafone Cash number:',
@@ -89,8 +90,8 @@ const checkoutTranslations = {
     payType: 'كيف تفضل الدفع؟',
     cod: 'الدفع عند الاستلام',
     codDesc: 'ادفع نقداً عند استلام طلبك أمام باب البيت',
-    payNow: 'ادفع الآن (تحويل إلكتروني)',
-    payNowDesc: 'ادفع فوراً عبر فودافون كاش أو انستا باي لتسريع الشحن',
+    payNow: 'الدفع الإلكتروني الآمن (تأكيد تلقائي)',
+    payNowDesc: 'ادفع فوراً عبر انستا باي أو المحافظ الإلكترونية لتفعيل الطلب تلقائياً',
     payAmtOption: 'خيار قيمة الدفع',
     payFull: 'دفع المبلغ كاملاً',
     payFullDesc: 'دفع 100% من إجمالي الفاتورة الآن',
@@ -99,11 +100,11 @@ const checkoutTranslations = {
     depositLabel: 'نسبة العربون',
     minDepositWarning: 'يجب أن يكون العربون 25% على الأقل من قيمة السلة',
     offerRestriction: 'المنتجات التي عليها عروض تتطلب دفع المبلغ كاملاً (تم إيقاف خيار العربون)',
-    payMethod: 'اختر طريقة الدفع الإلكتروني',
-    instapay: 'تحويل عبر انستا باي (InstaPay)',
-    instapayDesc: 'حول مباشرة إلى عنوان انستا باي الخاص بنا',
-    vfCash: 'فودافون كاش (Vodafone Cash)',
-    vfCashDesc: 'حول إلى محفظة فودافون كاش الخاصة بنا',
+    payMethod: 'اختر طريقة الدفع الإلكتروني الآمن',
+    instapay: 'شبكة انستا باي (InstaPay IPN)',
+    instapayDesc: 'دفع بنكي لحظي مباشر عبر عنوان الدفع أو الرمز السريع QR Code',
+    vfCash: 'فودافون كاش والمحافظ الإلكترونية',
+    vfCashDesc: 'ادفع بمحفظة فودافون، أورانج، اتصالات أو ميزة الرقمية للتحصيل الإلكتروني',
     transferInstructions: 'تعليمات تحويل الأموال',
     instapayInstructions: 'برجاء تحويل المبلغ المطلوب إلى عنوان انستا باي التالي:',
     vfInstructions: 'برجاء تحويل المبلغ المطلوب إلى رقم فودافون كاش التالي:',
@@ -154,6 +155,9 @@ export default function CheckoutPage({
   const [paymentMethod, setPaymentMethod] = useState('instapay'); // 'instapay', 'vf_cash'
   const [depositPercent, setDepositPercent] = useState(25); // 25 to 100
   const [refNumber, setRefNumber] = useState('');
+  const [showSimulator, setShowSimulator] = useState(false);
+  const [showInvoice, setShowInvoice] = useState(false);
+  const [realPaymentUrl, setRealPaymentUrl] = useState('');
   
   // Checkout process states
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -170,6 +174,30 @@ export default function CheckoutPage({
       setPayOption('full');
     }
   }, [hasOfferItems]);
+
+  // Polling for real Paymob payment status
+  useEffect(() => {
+    let intervalId;
+    if (realPaymentUrl && orderId && !isSuccess) {
+      intervalId = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/payments/status/${orderId}`);
+          const data = await res.json();
+          if (res.ok && data.status === 'paid') {
+            clearInterval(intervalId);
+            setRealPaymentUrl('');
+            setIsSuccess(true);
+            onClearCart();
+          }
+        } catch (e) {
+          console.error("Error polling payment status:", e);
+        }
+      }, 2500);
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [realPaymentUrl, orderId, isSuccess]);
 
   // Pricing calculations (EGP)
   const calculateSubtotal = () => {
@@ -205,15 +233,13 @@ export default function CheckoutPage({
   };
 
   // Submit Handler
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!fullName || !phone || !address) return;
-    if (paymentType === 'now' && !refNumber) return;
-
-    const generatedOrderId = `GD-${Math.floor(Math.random() * 90000) + 10000}`;
-    setOrderId(generatedOrderId);
 
     if (paymentType === 'cod') {
+      const generatedOrderId = `GD-${Math.floor(Math.random() * 90000) + 10000}`;
+      setOrderId(generatedOrderId);
       // Clear cart
       onClearCart();
       // Show success state
@@ -233,12 +259,35 @@ export default function CheckoutPage({
       window.open(`https://wa.me/201111926799?text=${message}`, '_blank');
     } else {
       setIsSubmitting(true);
-      // For Pay Now, simulate processing
-      setTimeout(() => {
+      try {
+        const response = await fetch('/api/payments/create-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: dueNow,
+            paymentMethod,
+            payOption,
+            depositPercent,
+            cartItems: cartList.map(item => ({ id: item.product.id, name: item.product.name, quantity: item.quantity, price: item.product.price })),
+            customerInfo: { fullName, phone, address }
+          })
+        });
+        const data = await response.json();
+        if (response.ok && data.success) {
+          setOrderId(data.orderId);
+          if (data.isReal && data.redirectUrl) {
+            setRealPaymentUrl(data.redirectUrl);
+          } else {
+            setShowSimulator(true);
+          }
+        } else {
+          alert(isAr ? 'عذراً، فشل إنشاء عملية الدفع الإلكتروني.' : 'Failed to initialize electronic payment.');
+          setIsSubmitting(false);
+        }
+      } catch (err) {
+        alert(isAr ? 'خطأ في الاتصال بالخادم.' : 'Connection error.');
         setIsSubmitting(false);
-        setIsSuccess(true);
-        onClearCart();
-      }, 2500);
+      }
     }
   };
 
@@ -253,7 +302,7 @@ export default function CheckoutPage({
     } else {
       const methodText = paymentMethod === 'instapay' ? 'InstaPay' : 'Vodafone Cash';
       const optionText = payOption === 'full' ? (isAr ? 'مبلغ كامل' : 'Full Amount') : (isAr ? `عربون بنسبة ${depositPercent}%` : `Deposit ${depositPercent}%`);
-      paymentDetails = `${methodText} (${optionText}) - المدفوع: ${dueNow.toLocaleString()} ${t('egp')} - المتبقي: ${dueOnDelivery.toLocaleString()} ${t('egp')}\nالعملية/الرقم: ${refNumber}`;
+      paymentDetails = `${methodText} (${optionText}) - المدفوع: ${dueNow.toLocaleString()} ${t('egp')} - المتبقي: ${dueOnDelivery.toLocaleString()} ${t('egp')} [تم السداد تلقائياً عبر GOLDEN PAY]`;
     }
 
     const message = encodeURIComponent(
@@ -315,6 +364,15 @@ export default function CheckoutPage({
               <Smartphone size={18} />
               <span>{t('whatsappTrack')}</span>
             </button>
+
+            <button 
+              onClick={() => setShowInvoice(true)}
+              className="btn-outline"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
+            >
+              <CreditCard size={18} />
+              <span>{isAr ? 'عرض وطباعة الفاتورة' : 'View & Print Invoice'}</span>
+            </button>
             
             <button 
               onClick={() => setActiveTab('catalog')} 
@@ -327,6 +385,353 @@ export default function CheckoutPage({
       </div>
     );
   }
+
+  // --- Invoice Modal for printing/downloading ---
+  const InvoiceModal = () => {
+    const today = new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    return (
+      <div className="invoice-overlay no-print" onClick={() => setShowInvoice(false)}>
+        <div className="invoice-modal-card invoice-print-area" onClick={(e) => e.stopPropagation()}>
+          {/* Invoice Header */}
+          <div className="invoice-header">
+            <div className="invoice-logo-section">
+              <h2 className="invoice-logo">GOLDEN <span style={{ color: 'var(--red)' }}>CAR</span></h2>
+              <p className="invoice-store-sub">{isAr ? 'قطع غيار واكسسوارات سيارات فاخرة' : 'Premium Auto Parts & Accessories'}</p>
+            </div>
+            <div className="invoice-meta-section" style={{ textAlign: isAr ? 'left' : 'right' }}>
+              <h3>{isAr ? 'فاتورة شراء' : 'INVOICE'}</h3>
+              <p><strong>{isAr ? 'رقم الفاتورة:' : 'Invoice No:'}</strong> {orderId}</p>
+              <p><strong>{isAr ? 'التاريخ:' : 'Date:'}</strong> {today}</p>
+            </div>
+          </div>
+
+          <hr className="invoice-divider" />
+
+          {/* Billing & Shipping Info */}
+          <div className="invoice-details-grid">
+            <div className="details-col">
+              <h4>{isAr ? 'العميل:' : 'Customer:'}</h4>
+              <p><strong>{fullName}</strong></p>
+              <p>{phone}</p>
+              <p>{address}</p>
+            </div>
+            <div className="details-col" style={{ textAlign: isAr ? 'left' : 'right' }}>
+              <h4>{isAr ? 'بيانات الشحن:' : 'Shipped By:'}</h4>
+              <p><strong>GOLDEN CAR STORES</strong></p>
+              <p>+20 111 192 6799</p>
+              <p>{isAr ? '12 شارع البطل أحمد عبد العزيز، المهندسين، الجيزة' : '12 El-Batal Ahmed Abdel Aziz, Mohandessin, Giza'}</p>
+            </div>
+          </div>
+
+          {/* Items Table */}
+          <div className="invoice-table-wrapper">
+            <table className="invoice-items-table">
+              <thead>
+                <tr>
+                  <th style={{ textAlign: isAr ? 'right' : 'left' }}>{isAr ? 'المنتج' : 'Item'}</th>
+                  <th style={{ textAlign: 'center' }}>{isAr ? 'الكمية' : 'Qty'}</th>
+                  <th style={{ textAlign: isAr ? 'left' : 'right' }}>{isAr ? 'سعر الوحدة' : 'Price'}</th>
+                  <th style={{ textAlign: isAr ? 'left' : 'right' }}>{isAr ? 'الإجمالي' : 'Total'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cartList.map((item) => (
+                  <tr key={item.product.id}>
+                    <td style={{ textAlign: isAr ? 'right' : 'left' }}>{isAr ? (item.product.nameAr || item.product.name) : item.product.name}</td>
+                    <td style={{ textAlign: 'center' }}>{item.quantity}</td>
+                    <td style={{ textAlign: isAr ? 'left' : 'right' }}>{item.product.price.toLocaleString()} {t('egp')}</td>
+                    <td style={{ textAlign: isAr ? 'left' : 'right' }}>{(item.product.price * item.quantity).toLocaleString()} {t('egp')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Summary Details */}
+          <div className="invoice-summary-section">
+            <div className="invoice-payment-status">
+              {paymentType === 'now' ? (
+                <div className="status-stamp paid">
+                  <span>{isAr ? 'تم الدفع إلكترونياً' : 'PAID ELECTRONICALLY'}</span>
+                  <small style={{ display: 'block', fontSize: '10px', marginTop: '2px', opacity: 0.8 }}>
+                    {paymentMethod === 'instapay' ? 'InstaPay' : 'Vodafone Cash'}
+                  </small>
+                </div>
+              ) : (
+                <div className="status-stamp cod">
+                  <span>{isAr ? 'الدفع عند الاستلام' : 'CASH ON DELIVERY'}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="invoice-totals-box">
+              <div className="total-row-inv">
+                <span>{t('subtotal')}</span>
+                <span>{subtotal.toLocaleString()} {t('egp')}</span>
+              </div>
+              <div className="total-row-inv">
+                <span>{t('shipping')}</span>
+                <span>{shipping.toLocaleString()} {t('egp')}</span>
+              </div>
+              <div className="total-row-inv">
+                <span>{t('tax')}</span>
+                <span>{tax.toLocaleString()} {t('egp')}</span>
+              </div>
+              <hr style={{ margin: '8px 0', borderColor: 'rgba(255,255,255,0.08)' }} />
+              <div className="total-row-inv grand-total">
+                <span>{t('total')}</span>
+                <span>{total.toLocaleString()} {t('egp')}</span>
+              </div>
+
+              {paymentType === 'now' && (
+                <>
+                  <div className="total-row-inv due-now">
+                    <span>{t('dueNow')}</span>
+                    <span>{dueNow.toLocaleString()} {t('egp')}</span>
+                  </div>
+                  {dueOnDelivery > 0 && (
+                    <div className="total-row-inv remaining">
+                      <span>{t('dueOnDelivery')}</span>
+                      <span>{dueOnDelivery.toLocaleString()} {t('egp')}</span>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Invoice Actions (No Print) */}
+          <div className="invoice-modal-actions no-print">
+            <button className="btn-sim-outline" onClick={() => setShowInvoice(false)}>
+              {isAr ? 'إغلاق' : 'Close'}
+            </button>
+            <button className="btn-sim-primary" onClick={() => window.print()}>
+              {isAr ? 'طباعة الفاتورة' : 'Print Invoice'}
+            </button>
+          </div>
+
+        </div>
+
+        <style>{`
+          .invoice-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+            overflow-y: auto;
+          }
+          .invoice-modal-card {
+            background: #111;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 700px;
+            padding: 30px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+            color: #fff;
+          }
+          .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+          }
+          .invoice-logo {
+            font-family: var(--font-display);
+            font-size: 26px;
+            letter-spacing: 1px;
+            margin: 0;
+          }
+          .invoice-store-sub {
+            font-size: 12px;
+            color: #888;
+            margin: 4px 0 0 0;
+          }
+          .invoice-meta-section h3 {
+            margin: 0 0 8px 0;
+            font-size: 20px;
+            color: var(--red);
+          }
+          .invoice-meta-section p {
+            font-size: 13px;
+            color: #aaa;
+            margin: 3px 0;
+          }
+          .invoice-divider {
+            border: 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin: 20px 0;
+          }
+          .invoice-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+          }
+          .details-col h4 {
+            font-size: 14px;
+            color: #888;
+            margin: 0 0 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          .details-col p {
+            font-size: 13px;
+            color: #ccc;
+            margin: 4px 0;
+            line-height: 1.5;
+          }
+          .invoice-table-wrapper {
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            overflow: hidden;
+          }
+          .invoice-items-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+          }
+          .invoice-items-table th {
+            background: #181818;
+            color: #888;
+            padding: 10px 14px;
+            font-weight: 600;
+          }
+          .invoice-items-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #ddd;
+          }
+          .invoice-items-table tr:last-child td {
+            border-bottom: none;
+          }
+          .invoice-summary-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-top: 24px;
+            gap: 20px;
+          }
+          .status-stamp {
+            border: 2px solid currentColor;
+            border-radius: 6px;
+            padding: 10px 16px;
+            font-weight: 800;
+            font-size: 14px;
+            letter-spacing: 1px;
+            transform: rotate(-5deg);
+            display: inline-block;
+          }
+          .status-stamp.paid {
+            color: #2ecc71;
+            background: rgba(46, 204, 113, 0.05);
+          }
+          .status-stamp.cod {
+            color: #f39c12;
+            background: rgba(243, 156, 18, 0.05);
+          }
+          .invoice-totals-box {
+            width: 100%;
+            max-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+          }
+          .total-row-inv {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #aaa;
+          }
+          .total-row-inv.grand-total {
+            color: #fff;
+            font-weight: 700;
+            font-size: 15px;
+          }
+          .total-row-inv.due-now {
+            color: #2ecc71;
+            font-weight: 700;
+            margin-top: 4px;
+          }
+          .total-row-inv.remaining {
+            color: #aaa;
+            font-size: 12px;
+          }
+          .invoice-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 20px;
+          }
+          
+          /* Print Stylesheet Overrides */
+          @media print {
+            body * {
+              visibility: hidden !important;
+            }
+            .invoice-print-area, .invoice-print-area * {
+              visibility: visible !important;
+            }
+            .invoice-print-area {
+              position: absolute !important;
+              left: 0 !important;
+              top: 0 !important;
+              width: 100% !important;
+              max-width: 100% !important;
+              background: #fff !important;
+              color: #000 !important;
+              border: none !important;
+              box-shadow: none !important;
+              padding: 0 !important;
+              margin: 0 !important;
+            }
+            .invoice-print-area td, .invoice-print-area p, .invoice-print-area strong, .invoice-print-area span, .invoice-print-area h2, .invoice-print-area h3 {
+              color: #000 !important;
+            }
+            .invoice-items-table th {
+              background: #f0f0f0 !important;
+              color: #333 !important;
+            }
+            .invoice-divider {
+              border-top: 1px solid #ccc !important;
+            }
+            .invoice-table-wrapper {
+              border: 1px solid #ccc !important;
+            }
+            .invoice-items-table td {
+              border-bottom: 1px solid #eee !important;
+            }
+            .status-stamp.paid {
+              color: #27ae60 !important;
+              border-color: #27ae60 !important;
+            }
+            .status-stamp.cod {
+              color: #d35400 !important;
+              border-color: #d35400 !important;
+            }
+            .no-print {
+              display: none !important;
+            }
+          }
+        `}</style>
+      </div>
+    );
+  };
 
   return (
     <div className="section-wrapper checkout-page-container animate-fade-in" style={{ marginTop: 'var(--header-h)' }} dir={isAr ? 'rtl' : 'ltr'}>
@@ -546,65 +951,29 @@ export default function CheckoutPage({
                       </div>
                     </div>
 
-                    {/* Transfer Details Card */}
-                    <div className="transfer-details-card">
-                      <div className="transfer-card-header">
-                        <CreditCard size={18} />
-                        <strong>{t('transferInstructions')}</strong>
+                    {/* Automated Payment Notice */}
+                    <div className="gateway-notice-card" style={{
+                      background: 'rgba(227, 30, 36, 0.04)',
+                      border: '1px dashed var(--border-red)',
+                      borderRadius: 'var(--radius)',
+                      padding: '16px',
+                      marginTop: '16px',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '12px'
+                    }}>
+                      <Check size={20} style={{ color: 'var(--green)', marginTop: '2px', flexShrink: 0 }} />
+                      <div>
+                        <strong style={{ display: 'block', fontSize: '14px', marginBottom: '4px', color: 'var(--text)', fontWeight: 'bold' }}>
+                          {isAr ? 'الدفع الإلكتروني التلقائي الآمن' : 'Secure Electronic Automated Payment'}
+                        </strong>
+                        <p style={{ fontSize: '13px', color: 'var(--text-2)', lineHeight: '1.5', margin: 0 }}>
+                          {isAr 
+                            ? `سيتم فتح نافذة الدفع الآمنة (GOLDEN PAY) لإتمام سداد مبلغ قدره ${dueNow.toLocaleString()} ج.م عبر ${paymentMethod === 'instapay' ? 'تطبيق InstaPay' : 'محفظة فودافون كاش'} تلقائياً فور النقر على زر تأكيد الطلب بالأسفل.`
+                            : `A secure payment window (GOLDEN PAY) will launch to process your payment of ${dueNow.toLocaleString()} EGP via ${paymentMethod === 'instapay' ? 'InstaPay App' : 'Vodafone Cash Wallet'} immediately after clicking the place order button.`
+                          }
+                        </p>
                       </div>
-                      
-                      <div className="transfer-body">
-                        {paymentMethod === 'instapay' ? (
-                          <>
-                            <p>{t('instapayInstructions')}</p>
-                            <div className="copy-action-row">
-                              <code className="transfer-value">golden@instapay</code>
-                              <button 
-                                type="button" 
-                                className="btn-copy"
-                                onClick={() => handleCopy('golden@instapay')}
-                              >
-                                {copiedText ? t('copied') : t('transferCopy')}
-                              </button>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <p>{t('vfInstructions')}</p>
-                            <div className="copy-action-row">
-                              <code className="transfer-value">01111926799</code>
-                              <button 
-                                type="button" 
-                                className="btn-copy"
-                                onClick={() => handleCopy('01111926799')}
-                              >
-                                {copiedText ? t('copied') : t('transferCopy')}
-                              </button>
-                            </div>
-                          </>
-                        )}
-                        
-                        <div className="amount-transfer-callout">
-                          <span>{t('dueNow')}: </span>
-                          <strong>{dueNow.toLocaleString()} {t('egp')}</strong>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Reference Number input */}
-                    <div className="form-group-checkout" style={{ marginTop: '20px' }}>
-                      <label className="form-label-checkout">
-                        <CreditCard size={16} />
-                        <span>{t('referenceNumber')} <span style={{ color: 'var(--red)' }}>*</span></span>
-                      </label>
-                      <input 
-                        type="text" 
-                        className="checkout-form-input" 
-                        placeholder={t('referencePlaceholder')}
-                        value={refNumber}
-                        onChange={(e) => setRefNumber(e.target.value)}
-                        required={paymentType === 'now'}
-                      />
                     </div>
                   </div>
 
@@ -686,18 +1055,131 @@ export default function CheckoutPage({
               <button 
                 type="button" 
                 onClick={handleSubmit}
-                disabled={isSubmitting || !fullName || !phone || !address || (paymentType === 'now' && !refNumber)}
+                disabled={isSubmitting || !fullName || !phone || !address}
                 className="btn-primary checkout-submit-action-btn"
                 style={{ width: '100%', marginTop: '24px', py: '14px' }}
               >
                 {isSubmitting ? (
                   <span>{t('processing')}</span>
                 ) : (
-                  <span>{paymentType === 'now' ? t('confirmOrder') : t('confirmCOD')}</span>
+                  <span>
+                    {paymentType === 'now' 
+                      ? (isAr 
+                          ? `ادفع ${dueNow.toLocaleString()} ج.م الآن عبر ${paymentMethod === 'instapay' ? 'انستا باي' : 'فودافون كاش'}`
+                          : `Pay ${dueNow.toLocaleString()} EGP Now via ${paymentMethod === 'instapay' ? 'InstaPay' : 'Vodafone Cash'}`
+                        )
+                      : t('confirmCOD')
+                    }
+                  </span>
                 )}
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {showSimulator && (
+        <PaymentSimulator 
+          orderId={orderId}
+          amount={dueNow}
+          paymentMethod={paymentMethod}
+          customerInfo={{ fullName, phone, address }}
+          isAr={isAr}
+          onSuccess={(confirmedOrderId) => {
+            setShowSimulator(false);
+            setIsSubmitting(false);
+            setIsSuccess(true);
+            onClearCart();
+          }}
+          onCancel={() => {
+            setShowSimulator(false);
+            setIsSubmitting(false);
+          }}
+        />
+      )}
+      {showInvoice && <InvoiceModal />}
+
+      {realPaymentUrl && (
+        <div className="real-payment-overlay no-print">
+          <div className="real-payment-modal">
+            <div className="real-payment-header">
+              <h3>{isAr ? 'بوابة الدفع الآمنة (GOLDEN PAY)' : 'Secure Payment (GOLDEN PAY)'}</h3>
+              <button className="close-payment-btn" onClick={() => {
+                setRealPaymentUrl('');
+                setIsSubmitting(false);
+              }}>
+                {isAr ? 'إلغاء والرجوع' : 'Cancel & Go Back'}
+              </button>
+            </div>
+            <iframe 
+              src={realPaymentUrl} 
+              title="Secure Checkout" 
+              className="secure-payment-iframe"
+            />
+          </div>
+          <style>{`
+            .real-payment-overlay {
+              position: fixed;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background: rgba(0, 0, 0, 0.85);
+              backdrop-filter: blur(8px);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              z-index: 10000;
+              padding: 20px;
+            }
+            .real-payment-modal {
+              background: #111;
+              border: 1px solid rgba(255,255,255,0.12);
+              border-radius: 16px;
+              width: 100%;
+              max-width: 600px;
+              height: 80vh;
+              display: flex;
+              flex-direction: column;
+              overflow: hidden;
+              box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            }
+            .real-payment-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 16px 20px;
+              background: #181818;
+              border-bottom: 1px solid rgba(255,255,255,0.05);
+            }
+            .real-payment-header h3 {
+              margin: 0;
+              font-size: 14px;
+              font-weight: 600;
+              color: var(--text);
+            }
+            .close-payment-btn {
+              background: transparent;
+              border: 1px solid rgba(255,255,255,0.15);
+              color: var(--text-2);
+              padding: 6px 12px;
+              border-radius: 6px;
+              font-size: 12px;
+              cursor: pointer;
+              transition: var(--t);
+            }
+            .close-payment-btn:hover {
+              color: #ff3038;
+              border-color: #ff3038;
+              background: rgba(227, 30, 36, 0.05);
+            }
+            .secure-payment-iframe {
+              width: 100%;
+              flex: 1;
+              border: none;
+              background: #fff;
+            }
+          `}</style>
         </div>
       )}
     </div>
