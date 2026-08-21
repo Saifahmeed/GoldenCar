@@ -17,6 +17,8 @@ import TikTokShowcase from './components/TikTokShowcase';
 import Logo from './components/Logo';
 import Dashboard from './components/Dashboard';
 import AdminPanel from './components/AdminPanel';
+import CheckoutPage from './components/CheckoutPage';
+import CartDrawer from './components/CartDrawer';
 
 // ─── Load custom admin products from localStorage ───────────────
 function loadCustomProducts() {
@@ -376,99 +378,7 @@ function ProductModal({ product, isOpen, onClose, activeVehicle, onAddToCart, is
   );
 }
 
-// ─── Cart Drawer ─────────────────────────────────────────────────
-function CartDrawer({ isOpen, onClose, cartList, onUpdateQty, onRemoveItem, onClearCart, activeVehicle, isAr, t }) {
-  const total = cartList.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
-  const imgMap = {
-    'brakes.jpg': '/img/brakes.jpg',
-    'ignition_coils.jpg': '/img/ignition_coils.jpg',
-    'spark_plugs.jpg': '/img/spark_plugs.jpg',
-    'intercooler.jpg': '/img/intercooler.jpg',
-    'downpipe.jpg': '/img/downpipe.jpg',
-    'springs.jpg': '/img/springs.jpg',
-    'sway_bar.jpg': '/img/sway_bar.jpg',
-    'brake_pads.jpg': '/img/brake_pads.jpg',
-    'exhaust.jpg': '/img/exhaust.jpg',
-    'intake.jpg': '/img/intake.jpg',
-  };
-
-  const buildWaMessage = () => {
-    const lines = cartList.map(item =>
-      `• ${item.product.name} (${item.product.sku}) x${item.quantity} = ${(item.product.price * item.quantity).toLocaleString()} EGP`
-    );
-    return encodeURIComponent(`طلب جديد من موقع Golden Car Stores:\n${lines.join('\n')}\n\nالإجمالي: ${total.toLocaleString()} EGP`);
-  };
-
-  return (
-    <div className={`drawer-overlay${isOpen ? ' open' : ''}`} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="drawer-panel">
-        <div className="drawer-header">
-          <div className="drawer-title">
-            {t('cart.title')} {cartList.length > 0 && `(${cartList.reduce((s, i) => s + i.quantity, 0)})`}
-          </div>
-          <button className="drawer-close" onClick={onClose}><X size={14} /></button>
-        </div>
-
-        <div className="drawer-body">
-          {cartList.length === 0 ? (
-            <div className="drawer-empty">
-              <ShoppingBag size={40} />
-              <h4>{t('cart.empty')}</h4>
-              <p>{t('cart.empty.sub')}</p>
-            </div>
-          ) : (
-            cartList.map(item => (
-              <div key={item.product.id} className="cart-item">
-                <img src={imgMap[item.product.image] || imgMap['brakes.jpg']} alt={item.product.name} className="cart-item-img" />
-                <div className="cart-item-info">
-                  <div className="cart-item-name">
-                    {isAr && item.product.nameAr ? item.product.nameAr : item.product.name}
-                  </div>
-                  <div className="cart-item-sku">{item.product.sku}</div>
-                  <div className="cart-item-price">
-                    {(item.product.price * item.quantity).toLocaleString()} {isAr ? 'ج.م' : 'EGP'}
-                  </div>
-                  <div className="cart-qty-row">
-                    <button className="cart-qty-btn" onClick={() => onUpdateQty(item.product.id, -1)}>−</button>
-                    <span className="cart-qty-num">{item.quantity}</span>
-                    <button className="cart-qty-btn" onClick={() => onUpdateQty(item.product.id, 1)}>+</button>
-                    <button className="cart-remove-btn" onClick={() => onRemoveItem(item.product.id)}>
-                      {t('cart.remove')}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        {cartList.length > 0 && (
-          <div className="drawer-footer">
-            <div className="cart-total-row">
-              <span className="cart-total-label">{t('cart.total')}</span>
-              <span className="cart-total-amount">
-                {total.toLocaleString()} <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.7rem', color: 'var(--text-2)' }}>{isAr ? 'ج.م' : 'EGP'}</span>
-              </span>
-            </div>
-            <a
-              href={`https://wa.me/201111926799?text=${buildWaMessage()}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="cart-checkout-btn"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.7" />
-              </svg>
-              {t('cart.checkout')}
-            </a>
-            <button className="cart-clear-btn" onClick={onClearCart}>{t('cart.clear')}</button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
 
 // ─── Garage Drawer ───────────────────────────────────────────────
 function GarageDrawer({ isOpen, onClose, garageList, activeVehicle, onSetActiveVehicle, onAddVehicle, onDeleteVehicle, isAr, t }) {
@@ -1730,6 +1640,17 @@ export default function App() {
         </div>
       )}
 
+      {/* ═══ CHECKOUT PAGE ═══════════════════════════════════════ */}
+      {activeTab === 'checkout' && (
+        <CheckoutPage
+          cartList={cartList}
+          onClearCart={() => setCartList([])}
+          isAr={isAr}
+          setActiveTab={setActiveTab}
+          activeVehicle={activeVehicle}
+        />
+      )}
+
       {ownerAuthenticated && (activeTab === 'dashboard' || activeTab === 'admin') && (
         <PrivateToolsBar activeTab={activeTab} setActiveTab={setActiveTab} isAr={isAr} />
       )}
@@ -1778,6 +1699,7 @@ export default function App() {
         activeVehicle={activeVehicle}
         isAr={isAr}
         t={t}
+        onGoToCheckout={() => { setIsCartOpen(false); setActiveTab('checkout'); }}
       />
       <ProductModal
         product={selectedProduct}
